@@ -3,20 +3,18 @@
   "version": "0.0.1",
   "description": "Some tests with an Office 365 add-in and Fabric UI",
   "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tiagordc/o365-addin-fabric.git"
   },
   "keywords": [
-    "office",
-    "365",
-    "fabric",
-    "ui",
-    "excel",
-    "web",
+    "office 365",
+    "fabric ui",
+    "excel web",
     "poc",
     "demo"
   ],
