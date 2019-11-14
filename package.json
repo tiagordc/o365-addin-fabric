@@ -1,6 +1,7 @@
 {
-  "name": "office-addin-taskpane-react",
+  "name": "o365-addin-fabric",
   "version": "0.0.1",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/OfficeDev/Office-Addin-TaskPane-React.git"
