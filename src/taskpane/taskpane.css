@@ -11,6 +11,26 @@
      padding: 0;
  }
  
+.xls-separator {
+    height: 12px;
+    width: 100%;
+    border-top: 1px solid #bfbfbf;
+    border-bottom: 1px solid #bfbfbf;
+    background-color: #e6e6e6;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
  ul {
      margin: 0;
      padding: 0;

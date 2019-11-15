@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Button, ButtonType } from "office-ui-fabric-react";
-import Header from "./Header";
+import { CommandBar, ICommandBarItemProps, Button, ButtonType } from "office-ui-fabric-react";
 import HeroList, { HeroListItem } from "./HeroList";
 import Progress from "./Progress";
 /* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
@@ -12,13 +11,15 @@ export interface AppProps {
 
 export interface AppState {
   listItems: HeroListItem[];
+  debugging: boolean;
 }
 
 export default class App extends React.Component<AppProps, AppState> {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      listItems: []
+      listItems: [],
+      debugging: false
     };
   }
 
@@ -64,6 +65,8 @@ export default class App extends React.Component<AppProps, AppState> {
   };
 
   render() {
+
+    let self = this;
     const { title, isOfficeInitialized } = this.props;
 
     if (!isOfficeInitialized) {
@@ -72,9 +75,46 @@ export default class App extends React.Component<AppProps, AppState> {
       );
     }
 
+    const _items: ICommandBarItemProps[] = [
+      {
+        key: "newItem",
+        text: "Debug",
+        iconProps: { iconName: "Bug" },
+        disabled: self.state.debugging,
+        onClick: () => {
+          self.setState({ debugging: true }, () => {
+            const win = window as any;
+            win.VORLON.Core.StartClientSide("https://localhost:1337", "default");
+          });
+        }
+      },
+      {
+        key: "upload",
+        text: "Upload",
+        iconProps: { iconName: "Upload" },
+        href: "https://dev.office.com/fabric"
+      },
+      {
+        key: "share",
+        text: "Share",
+        iconProps: { iconName: "Share" },
+        onClick: () => console.log("Share")
+      },
+      {
+        key: "download",
+        text: "Download",
+        iconProps: { iconName: "Download" },
+        onClick: () => console.log("Download")
+      }
+    ];
+
     return (
-      <div className="ms-welcome">
-        <Header logo="assets/logo-filled.png" title={this.props.title} message="Welcome" />
+      <div>
+
+        <CommandBar items={_items} />
+        <div className="xls-separator"></div>
+
+
         <HeroList message="Discover what Office Add-ins can do for you today!" items={this.state.listItems}>
           <p className="ms-font-l">
             Modify the source files, then click <b>Run</b>.
@@ -90,5 +130,7 @@ export default class App extends React.Component<AppProps, AppState> {
         </HeroList>
       </div>
     );
+
   }
+
 }
