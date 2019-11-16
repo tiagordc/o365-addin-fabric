@@ -2,13 +2,13 @@
 
 ## References
 
-Build a message compose Outlook add-in:
+Build a message compose Outlook add-in:\
 https://docs.microsoft.com/en-us/outlook/add-ins/addin-tutorial
 
-Excel JavaScript API reference:
+Excel JavaScript API reference:\
 https://docs.microsoft.com/en-us/javascript/api/excel/excel.workbook?view=excel-js-preview
 
-UI Fabric:
+UI Fabric:\
 https://developer.microsoft.com/en-us/fabric#/
 
 ## Vorlon on Windows 
@@ -22,8 +22,10 @@ Go to /Vorlon/server/cert/ folder and:
 
 ## Webpack on Windows
 
+Beginner’s guide to Webpack:\
 https://medium.com/javascript-training/beginner-s-guide-to-webpack-b1f1a3638460
 
+Resources served by local dev server:\
 https://localhost:3000/webpack-dev-server
 
 To kill webpack dev server on **Windows**:
