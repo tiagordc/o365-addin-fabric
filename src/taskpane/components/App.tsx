@@ -1,8 +1,7 @@
 import * as React from "react";
 import { CommandBar, ICommandBarItemProps, Button, ButtonType } from "office-ui-fabric-react";
-import HeroList, { HeroListItem } from "./HeroList";
 import Progress from "./Progress";
-/* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
+import { config } from "../../config";
 
 export interface AppProps {
   title: string;
@@ -10,36 +9,23 @@ export interface AppProps {
 }
 
 export interface AppState {
-  listItems: HeroListItem[];
-  debugging: boolean;
+  
 }
 
 export default class App extends React.Component<AppProps, AppState> {
+
   constructor(props, context) {
+
     super(props, context);
+
     this.state = {
-      listItems: [],
-      debugging: false
+      
     };
+
   }
 
   componentDidMount() {
-    this.setState({
-      listItems: [
-        {
-          icon: "Ribbon",
-          primaryText: "Achieve more with Office integration"
-        },
-        {
-          icon: "Unlock",
-          primaryText: "Unlock features and functionality"
-        },
-        {
-          icon: "Design",
-          primaryText: "Create and visualize like a pro"
-        }
-      ]
-    });
+
   }
 
   click = async () => {
@@ -64,9 +50,24 @@ export default class App extends React.Component<AppProps, AppState> {
     }
   };
 
+  aboutPage = () => {
+    Office.context.ui.displayDialogAsync(`${config.url}/about.html`, { height: 40, width: 40 }, (result) => {
+      if (result.status === Office.AsyncResultStatus.Succeeded) {
+        const dialog = result.value;
+        dialog.addEventHandler(Office.EventType.DialogMessageReceived, (msg) => {
+          if (msg && msg.message) {
+            const debug = JSON.parse(msg.message);
+            (window as any).VORLON.Core.StartClientSide(debug.url, debug.id);
+            dialog.close();
+          }
+        });
+      }
+    });
+  }
+
   render() {
 
-    let self = this;
+    //let self = this;
     const { title, isOfficeInitialized } = this.props;
 
     if (!isOfficeInitialized) {
@@ -79,14 +80,7 @@ export default class App extends React.Component<AppProps, AppState> {
       {
         key: "newItem",
         text: "Debug",
-        iconProps: { iconName: "Bug" },
-        disabled: self.state.debugging,
-        onClick: () => {
-          self.setState({ debugging: true }, () => {
-            const win = window as any;
-            win.VORLON.Core.StartClientSide("https://localhost:1337", "default");
-          });
-        }
+        iconProps: { iconName: "Bug" }
       },
       {
         key: "upload",
@@ -108,18 +102,16 @@ export default class App extends React.Component<AppProps, AppState> {
       }
     ];
 
+    const _farItems: ICommandBarItemProps[] = [ { key: 'info', text: 'Info', ariaLabel: 'Info', iconOnly: true, iconProps: { iconName: 'Info' }, onClick: this.aboutPage }];
+
     return (
       <div>
 
-        <CommandBar items={_items} />
+        <CommandBar items={_items} farItems={_farItems} />
         <div className="xls-separator"></div>
 
 
-        <HeroList message="Discover what Office Add-ins can do for you today!" items={this.state.listItems}>
-          <p className="ms-font-l">
-            Modify the source files, then click <b>Run</b>.
-          </p>
-          <Button
+        <Button
             className="ms-welcome__action"
             buttonType={ButtonType.hero}
             iconProps={{ iconName: "ChevronRight" }}
@@ -127,7 +119,7 @@ export default class App extends React.Component<AppProps, AppState> {
           >
             Run
           </Button>
-        </HeroList>
+
       </div>
     );
 

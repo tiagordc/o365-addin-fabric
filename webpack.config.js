@@ -4,6 +4,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require('webpack');
+var path = require('path');
 
 module.exports = async (env, options)  => {
   const dev = options.mode === "development";
@@ -15,12 +16,16 @@ module.exports = async (env, options)  => {
         'react-dom',
         'core-js',
         'office-ui-fabric-react'
-    ],
-    taskpane: [
-        'react-hot-loader/patch',
-        './src/taskpane/index.tsx',
-    ],
-    commands: './src/commands/commands.ts'
+      ],
+      taskpane: [
+          'react-hot-loader/patch',
+          './src/taskpane/index.tsx',
+      ],
+      commands: './src/commands/commands.ts',
+      about: './src/taskpane/components/about.tsx',
+    },
+    performance: {
+      hints: false
     },
     resolve: {
       extensions: [".ts", ".tsx", ".html", ".js"]
@@ -63,6 +68,11 @@ module.exports = async (env, options)  => {
         filename: "taskpane.html",
           template: './src/taskpane/taskpane.html',
           chunks: ['taskpane', 'vendor', 'polyfills']
+      }),
+      new HtmlWebpackPlugin({
+        filename: "about.html",
+        template: "./src/taskpane/about.html",
+        chunks: ['about', 'vendor', 'polyfills']
       }),
       new HtmlWebpackPlugin({
           filename: "commands.html",
