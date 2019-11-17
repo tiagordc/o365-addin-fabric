@@ -6,6 +6,7 @@ Build a message compose Outlook add-in:\
 https://docs.microsoft.com/en-us/outlook/add-ins/addin-tutorial
 
 Excel JavaScript API reference:\
+https://docs.microsoft.com/en-us/office/dev/add-ins/excel/excel-add-ins-core-concepts
 https://docs.microsoft.com/en-us/javascript/api/excel/excel.workbook?view=excel-js-preview
 
 UI Fabric:\
