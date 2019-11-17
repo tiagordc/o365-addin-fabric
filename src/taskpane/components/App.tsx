@@ -4,8 +4,7 @@ import Progress from "./Progress";
 import { config } from "../../config";
 
 export interface IAppProps {
-  title: string;
-  isOfficeInitialized: boolean;
+  initialized: boolean;
   worksheet: string;
 }
 
@@ -19,8 +18,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
   public static getDerivedStateFromProps(nextProps: IAppProps, prevState: IAppState) {
     let result: any = {};
-    if (nextProps.isOfficeInitialized && prevState.loading) result.loading = false;
-    if (nextProps.worksheet !== prevState.sheet) result.sheet = nextProps.worksheet;
+    if (nextProps.initialized && prevState.loading) result.loading = false;
+    if (nextProps.worksheet !== prevState.sheet) result.sheet = nextProps.worksheet; 
     if (Object.keys(result).length === 0) return null;
     return result;
   }
@@ -83,7 +82,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
     if (self.state.loading) {
       return (
-        <Progress title={self.props.title} logo="assets/logo-filled.png" message="Please sideload your addin to see app body." />
+        <Progress title="Loading..." logo="assets/logo-filled.png" message="Please sideload your addin to see app body." />
       );
     }
 
