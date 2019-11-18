@@ -1,15 +1,16 @@
 import * as React from "react";
-import { CommandBar, ICommandBarItemProps, Button, ButtonType } from "office-ui-fabric-react";
-import Progress from "./Progress";
+import { CommandBar, ICommandBarItemProps, Button, ButtonType, Spinner, SpinnerType } from "office-ui-fabric-react";
 import { config } from "../../config";
+import { TabList, ITabListItem } from './TabList';
+import { Separator } from './Separator';
 
 export interface IAppProps {
-  initialized: boolean;
+  loaded: boolean;
   worksheet: string;
 }
 
 export interface IAppState {
-  loading: boolean;
+  loaded: boolean;
   debug: boolean;
   sheet: string;
 }
@@ -18,7 +19,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
   public static getDerivedStateFromProps(nextProps: IAppProps, prevState: IAppState) {
     let result: any = {};
-    if (nextProps.initialized && prevState.loading) result.loading = false;
+    if (nextProps.loaded !== prevState.loaded) result.loaded = nextProps.loaded;
     if (nextProps.worksheet !== prevState.sheet) result.sheet = nextProps.worksheet; 
     if (Object.keys(result).length === 0) return null;
     return result;
@@ -30,7 +31,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
     this.state = {
       debug: false,
-      loading: true,
+      loaded: false,
       sheet: props.worksheet
     };
 
@@ -80,26 +81,29 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
     let self = this;
 
-    if (self.state.loading) {
+    if (!self.state.loaded) {
       return (
-        <Progress title="Loading..." logo="assets/logo-filled.png" message="Please sideload your addin to see app body." />
+        <Spinner type={SpinnerType.large} label="Loading..." style={{marginTop: '45%'}} />
       );
     }
 
     const _items: ICommandBarItemProps[] = [
-      { key: "upload", text: "Upload", iconProps: { iconName: "Upload" }, onClick: () => console.log("Upload") },
-      { key: "share", text: "Share", iconProps: { iconName: "Share" }, onClick: () => console.log("Share") },
-      { key: "download", text: "Download", iconProps: { iconName: "Download" }, onClick: () => console.log("Download") }
+      { key: "add", text: "Add", iconProps: { iconName: "Add" }, onClick: () => console.log("Add") }
     ];
 
     const _farItems: ICommandBarItemProps[] = [ { key: 'info', text: 'Info', ariaLabel: 'Info', iconOnly: true, iconProps: { iconName: 'Info' }, onClick: this.aboutPage }];
 
+    const tabs: ITabListItem[] = [
+
+    ];
+
     return (
       <div>
         <CommandBar items={_items} farItems={_farItems} />
-        <div className="xls-separator"></div>
-        <p>{this.state.sheet}</p>
-
+        <Separator />
+        <TabList items={tabs} />
+        <Separator />
+        
         <Button
             className="ms-welcome__action"
             buttonType={ButtonType.hero}

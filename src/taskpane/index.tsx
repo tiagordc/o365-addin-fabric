@@ -7,14 +7,12 @@ import * as ReactDOM from "react-dom";
 
 initializeIcons();
 
-let current = { initialized: false, id: null, sheet: null, changed: null };
-
-Office.initialize = () => {
-  current.initialized = true;
-  render(App);
-};
+let state = { loaded: false, id: null, sheet: null, changed: null };
 
 Office.onReady(info => { // Get info of the current spreadsheet
+
+  state.loaded = false;
+  render(App);
 
   if (info.host === Office.HostType.Excel) {
     Excel.run((context) => {
@@ -27,9 +25,10 @@ Office.onReady(info => { // Get info of the current spreadsheet
       context.workbook.worksheets.onActivated.add(sheetChanged);
       
       return context.sync().then(() => {
-        current.id = sheet.id;
-        current.sheet = sheet;
-        current.changed = changedEvent;
+        state.loaded = true;
+        state.id = sheet.id;
+        state.sheet = sheet;
+        state.changed = changedEvent;
         render(App);
       });
 
@@ -40,14 +39,17 @@ Office.onReady(info => { // Get info of the current spreadsheet
 
 const sheetChanged = (eArgs: Excel.WorksheetActivatedEventArgs) => {
 
+  state.loaded = false;
+  render(App);
+
   let sheetId = eArgs.worksheetId;
-  if (sheetId === current.id) return Promise.resolve();
+  if (sheetId === state.id) return Promise.resolve();
 
   const removeHandler = () => { //https://docs.microsoft.com/en-us/office/dev/add-ins/excel/excel-add-ins-events#remove-an-event-handler
-    if (current.changed) {
-      return Excel.run(current.changed.context, function (context) {
-        current.changed.remove();
-        return context.sync().then(() => { delete current.changed; });
+    if (state.changed) {
+      return Excel.run(state.changed.context, (context) => {
+        state.changed.remove();
+        return context.sync().then(() => { delete state.changed; });
       });
     }
     return Promise.resolve();
@@ -63,9 +65,10 @@ const sheetChanged = (eArgs: Excel.WorksheetActivatedEventArgs) => {
       let changedEvent = sheet.onChanged.add(dataChanged);
   
       return context.sync().then(() => {
-        current.id = sheet.id;
-        current.sheet = sheet;
-        current.changed = changedEvent;
+        state.loaded = true;
+        state.id = sheet.id;
+        state.sheet = sheet;
+        state.changed = changedEvent;
         render(App);
       });
   
@@ -88,7 +91,7 @@ const dataChanged = (eArgs: Excel.WorksheetChangedEventArgs) => {
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component initialized={current.initialized} worksheet={current.id} />
+      <Component loaded={state.loaded} worksheet={state.id} />
     </AppContainer>,
     document.getElementById("container")
   );
