@@ -4,43 +4,57 @@ import { AppContainer } from "react-hot-loader";
 import { initializeIcons } from "office-ui-fabric-react/lib/Icons";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { debug } from "webpack";
 
 initializeIcons();
 
-let state = { loaded: false, id: null, sheet: null, changed: null };
+let state = { loaded: false, id: null, sheet: null, changed: null, development: false };
+
+const render = () => {
+  ReactDOM.render(
+    <AppContainer>
+      <App loaded={state.loaded} worksheet={state.id} development={state.development} />
+    </AppContainer>,
+    document.getElementById("container")
+  );
+};
 
 Office.onReady(info => { // Get info of the current spreadsheet
 
   state.loaded = false;
-  render(App);
+  render();
 
-  if (info.host === Office.HostType.Excel) {
+  if (info == null || info.host == null) {
+
+    state.loaded = true;
+    state.development = true;
+    render();
+
+  }
+  else if (info.host === Office.HostType.Excel) {
+
     Excel.run((context) => {
-
       var sheet = context.workbook.worksheets.getActiveWorksheet();
-      sheet.load(['id']);
-      
+      sheet.load(['id']);  
       let changedEvent = sheet.onChanged.add(dataChanged);
-
       context.workbook.worksheets.onActivated.add(sheetChanged);
-      
       return context.sync().then(() => {
         state.loaded = true;
         state.id = sheet.id;
         state.sheet = sheet;
         state.changed = changedEvent;
-        render(App);
+        render();
       });
-
     });
 
   }
+
 });
 
 const sheetChanged = (eArgs: Excel.WorksheetActivatedEventArgs) => {
 
   state.loaded = false;
-  render(App);
+  render();
 
   let sheetId = eArgs.worksheetId;
   if (sheetId === state.id) return Promise.resolve();
@@ -69,7 +83,7 @@ const sheetChanged = (eArgs: Excel.WorksheetActivatedEventArgs) => {
         state.id = sheet.id;
         state.sheet = sheet;
         state.changed = changedEvent;
-        render(App);
+        render();
       });
   
     });
@@ -88,20 +102,11 @@ const dataChanged = (eArgs: Excel.WorksheetChangedEventArgs) => {
 
 };
 
-const render = Component => {
-  ReactDOM.render(
-    <AppContainer>
-      <Component loaded={state.loaded} worksheet={state.id} />
-    </AppContainer>,
-    document.getElementById("container")
-  );
-};
+render(); //Initial render showing a progress bar
 
-render(App); //Initial render showing a progress bar
-
-if ((module as any).hot) {
-  (module as any).hot.accept("./components/App", () => {
-    const NextApp = require("./components/App").default;
-    render(NextApp);
-  });
-}
+// if ((module as any).hot) {
+//   (module as any).hot.accept("./components/App", () => {
+//     const NextApp = require("./components/App").default;
+//     render(NextApp);
+//   });
+// }

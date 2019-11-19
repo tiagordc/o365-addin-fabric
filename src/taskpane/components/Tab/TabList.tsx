@@ -1,16 +1,11 @@
 import * as React from "react";
-import { FontIcon, Stack, IStackStyles, IStackItemStyles, IStackTokens, mergeStyles } from 'office-ui-fabric-react';
+import { Icon, Stack, IStackStyles, IStackItemStyles, IStackTokens, mergeStyles } from 'office-ui-fabric-react';
 import Truncate from 'react-truncate';
-
-export interface ITabListItem {
-    icon: string;
-    title: string;
-    description?: string;
-}
+import { ITabItem } from './TabItem';
 
 export interface ITabListProps {
 
-    items: ITabListItem[];
+    items: ITabItem[];
 
     checked?: number;
     checkedChanged?: (index: number) => void;
@@ -31,6 +26,11 @@ export class TabList extends React.Component<ITabListProps> {
 
     updateDimensions() {
         this.forceUpdate();
+    }
+
+    uncheck = () => {
+        if (typeof this.props.checkedChanged !== 'function') return;
+        this.props.checkedChanged(null);
     }
 
     componentDidMount() {
@@ -61,9 +61,10 @@ export class TabList extends React.Component<ITabListProps> {
         const iconBackground = this.props.iconBackground || "#0078d4";
         const iconColor = this.props.iconColor || "#fff";
         const borderColor = '#bfbfbf';
-
+        const officeColor = Office.context && Office.context.officeTheme ? Office.context.officeTheme.bodyBackgroundColor : '#e6e6e6';
+        
         if (!this.props.items || this.props.items.length === 0) {
-            const separator = mergeStyles({  height: '12px', width: '100%', borderTop: `1px solid ${borderColor}`, borderBottom: `1px solid ${borderColor}`, backgroundColor: Office.context.officeTheme.bodyBackgroundColor });
+            const separator = mergeStyles({  height: '12px', width: '100%', borderTop: `1px solid ${borderColor}`, borderBottom: `1px solid ${borderColor}`, backgroundColor: officeColor });
             return <div className={separator}></div>;
         }
 
@@ -82,13 +83,13 @@ export class TabList extends React.Component<ITabListProps> {
         const toolsClass = mergeStyles({ fontSize: 14, color: iconBackground, cursor: 'pointer' });
         const toolsTokens: IStackTokens = { childrenGap: 6 };
 
-        const separator = mergeStyles({ height: '2px', width: '100%', backgroundColor: Office.context.officeTheme.bodyBackgroundColor });
+        const separator = mergeStyles({ height: '2px', width: '100%', backgroundColor: officeColor });
 
         const listItems = this.props.items.map((item, index) => (
-            <Stack horizontal styles={index === this.props.checked ? checkedStyles : itemStyles}>
+            <Stack key={"item_" + index} horizontal styles={index === this.props.checked ? checkedStyles : itemStyles}>
                 <Stack.Item disableShrink styles={iconStack}>
                     <div className={iconStyle} onClick={this.click.bind(this, index)}>
-                        <FontIcon iconName={item.icon} className={iconClass} />
+                        <Icon iconName={item.icon} className={iconClass} />
                     </div>
                 </Stack.Item>
                 <Stack.Item grow styles={textStack}>
@@ -101,25 +102,26 @@ export class TabList extends React.Component<ITabListProps> {
                 </Stack.Item>
                 <Stack.Item disableShrink styles={toolsStack}>
                     <Stack tokens={toolsTokens}>
-                        <FontIcon iconName="Delete" className={toolsClass} onClick={this.delete.bind(this, index)} />
-                        <FontIcon iconName="Move" className={toolsClass} />
+                        <Icon iconName="Delete" className={toolsClass} onClick={this.delete.bind(this, index)} />
+                        <Icon iconName="Move" className={toolsClass} />
                     </Stack>
                 </Stack.Item>
             </Stack>
         ));
 
         for (let i = 1; i < listItems.length; i += 2) {
-            listItems.splice(i, 0, <div className={separator}></div>);
+            listItems.splice(i, 0, <div key={"separator_" + i} className={separator}></div>);
         }
-
-        if (this.props.separator === true) {
-            const separatorTop = mergeStyles({ height: '12px', width: '100%', borderTop: `1px solid ${borderColor}`, backgroundColor: Office.context.officeTheme.bodyBackgroundColor });
-            const separatorBot = mergeStyles({ height: '12px', width: '100%', borderBottom: `1px solid ${borderColor}`, backgroundColor: Office.context.officeTheme.bodyBackgroundColor });
-            listItems.splice(0, 0, <div className={separatorTop}></div>);
-            listItems.push(<div className={separatorBot}></div>);
-        }
-
-        return <Stack>{listItems}</Stack>;
+        
+        return (
+            <div>
+                {this.props.separator && <div onClick={this.uncheck.bind(this)} className={mergeStyles({ height: '12px', width: '100%', borderTop: `1px solid ${borderColor}`, backgroundColor: officeColor })}></div>}
+                <Stack>
+                    {listItems}
+                </Stack>
+                {this.props.separator && <div onClick={this.uncheck.bind(this)} className={ mergeStyles({ height: '12px', width: '100%', borderBottom: `1px solid ${borderColor}`, backgroundColor: officeColor })}></div>}
+            </div>
+        );
 
     }
 

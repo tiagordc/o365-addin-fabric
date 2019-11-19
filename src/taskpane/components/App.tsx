@@ -1,10 +1,11 @@
 import * as React from "react";
-import { CommandBar, ICommandBarItemProps, Button, ButtonType, Spinner, SpinnerType } from "office-ui-fabric-react";
+import { CommandBar, ICommandBarItemProps, Spinner, SpinnerType } from "office-ui-fabric-react";
 import { config } from "../../config";
-import { TabList, ITabListItem } from './TabList';
+import { TabList, TabForm, ITabItem } from './Tab';
 
 export interface IAppProps {
   loaded: boolean;
+  development: boolean;
   worksheet: string;
 }
 
@@ -14,9 +15,9 @@ export interface IAppState {
   debug: boolean;
   sheet: string;
 
-  menu?: ICommandBarItemProps[];
-  tab?: number;
-  tabs?: ITabListItem[];
+  menuItems?: ICommandBarItemProps[];
+  tabItems?: ITabItem[];
+  tabChecked?: number;
 
 }
 
@@ -42,25 +43,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
   }
 
-  debug = (msg: string, ...args: any[]) => {
-    if (this.state.debug) {
-      console.log(msg, args);
-    }
+  addTab = () => {
+    let items = this.state.tabItems || [];
+    const newItem: ITabItem = { title: 'New Item', description: '', icon: 'List' };
+    const index = items.length;
+    items.push(newItem);
+    this.setState({ tabItems: items, tabChecked: index });
   }
-
-  click = async () => {
-    try {
-      await Excel.run(async context => {
-        const range = context.workbook.getSelectedRange();
-        range.load("address");
-        range.format.fill.color = "yellow";
-        await context.sync();
-        console.log(`The range address was ${range.address}.`);
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   aboutPage = () => {
 
@@ -83,13 +72,19 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   tabChange = (index) => {
-    this.setState({tab: index});
+    this.setState({tabChecked: index});
   }
 
   tabDeleted = (index) => {
-    let tabs = this.state.tabs;
+    let tabs = this.state.tabItems;
     tabs.splice(index, 1);
-    this.setState({ tabs: tabs });
+    this.setState({ tabItems: tabs, tabChecked: null });
+  }
+
+  tabItemChange = (field: string, value: any) => {
+    const items = this.state.tabItems;
+    items[this.state.tabChecked][field] = value;
+    this.setState({ tabItems: items });
   }
 
   render() {
@@ -102,13 +97,23 @@ export default class App extends React.Component<IAppProps, IAppState> {
       );
     }
 
-    const _farItems: ICommandBarItemProps[] = [ { key: 'info', text: 'Info', ariaLabel: 'Info', iconOnly: true, iconProps: { iconName: 'Info' }, onClick: this.aboutPage }];
+    const info: ICommandBarItemProps[] = [ { key: 'info', text: 'Info', ariaLabel: 'Info', iconOnly: true, iconProps: { iconName: 'Info' }, onClick: this.aboutPage }];
+
+    let innerContent: JSX.Element = null;
+
+    if (this.state.tabChecked >= 0) {
+      innerContent = <TabForm item={this.state.tabItems[this.state.tabChecked]} onChange={this.tabItemChange} />;
+    }
 
     return (
       <div>
-        <CommandBar items={this.state.menu} farItems={_farItems} />
-        <TabList items={this.state.tabs} checked={this.state.tab} separator={true} checkedChanged={this.tabChange} deleteTab={this.tabDeleted} />
-        <Button className="ms-welcome__action" buttonType={ButtonType.hero} iconProps={{ iconName: "ChevronRight" }} onClick={this.click}>Run</Button>
+        
+        <CommandBar items={this.state.menuItems} farItems={info} />
+        
+        <TabList items={this.state.tabItems} checked={this.state.tabChecked} separator={true} checkedChanged={this.tabChange} deleteTab={this.tabDeleted} />
+
+        {innerContent}
+
       </div>
     );
 

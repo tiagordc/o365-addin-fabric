@@ -12,7 +12,8 @@
     "allowUnusedLabels": false,
     "noImplicitReturns": true,
     "noUnusedParameters": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
+    "esModuleInterop": true,
     "lib": [
       "es7",
       "dom"

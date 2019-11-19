@@ -13,6 +13,10 @@ https://docs.microsoft.com/en-us/javascript/api/excel/excel.workbook?view=excel-
 UI Fabric:\
 https://developer.microsoft.com/en-us/fabric#/
 
+TypeScript:\
+https://levelup.gitconnected.com/usetypescript-a-complete-guide-to-react-hooks-and-typescript-db1858d1fb9c
+https://www.taniarascia.com/using-context-api-in-react/
+
 ## Vorlon on Windows 
 
 Open config.json file (%AppData%\npm\node_modules\vorlon) and set both useSSL property and OFFICE plugin enabled to true
@@ -32,5 +36,5 @@ https://localhost:3000/webpack-dev-server
 
 To kill webpack dev server on **Windows**:
 
-    netstat -aon | findstr 3000
+    netstat -aon | findstr ":3000"
     taskkill /pid ____
