@@ -41,11 +41,12 @@ export default class App extends React.Component<IAppProps, IAppState> {
       sheet: props.worksheet
     };
 
+
   }
 
   addTab = () => {
     let items = this.state.tabItems || [];
-    const newItem: ITabItem = { title: 'New Item', description: '', icon: 'List' };
+    const newItem: ITabItem = { key: 'list', title: 'New Item', description: '', icon: 'List' };
     const index = items.length;
     items.push(newItem);
     this.setState({ tabItems: items, tabChecked: index });
@@ -54,20 +55,35 @@ export default class App extends React.Component<IAppProps, IAppState> {
   aboutPage = () => {
 
     const self = this;
+    const url = `${config.url}/about.html`;
+    const win = window as any;
 
-    Office.context.ui.displayDialogAsync(`${config.url}/about.html`, { height: 40, width: 40 }, (result) => {
-      if (result.status === Office.AsyncResultStatus.Succeeded) {
-        const dialog = result.value;
-        dialog.addEventHandler(Office.EventType.DialogMessageReceived, (msg) => {
-          if (msg && msg.message) {
-            self.setState({ debug: true });
-            const debug = JSON.parse(msg.message);
-            (window as any).VORLON.Core.StartClientSide(debug.url, debug.id);
-            dialog.close();
-          }
-        });
-      }
-    });
+    if (Office.context.ui) {
+      Office.context.ui.displayDialogAsync(url, { height: 40, width: 40 }, (result) => {
+        if (result.status === Office.AsyncResultStatus.Succeeded) {
+          const dialog = result.value;
+          dialog.addEventHandler(Office.EventType.DialogMessageReceived, (msg) => {
+            if (msg && msg.message) {
+              self.setState({ debug: true });
+              const debug = JSON.parse(msg.message);
+              if (win.VORLON) win.VORLON.Core.StartClientSide(debug.url, debug.id);
+              dialog.close();
+            }
+          });
+        }
+      });
+    }
+    else {
+      const dialog = window.open(url);
+      dialog.addEventListener('storage', (ev) => {
+        if (ev.key != 'message') return; 
+        self.setState({ debug: true });
+        const debug = JSON.parse(ev.oldValue ? ev.oldValue : ev.newValue);
+        if (win.VORLON) win.VORLON.Core.StartClientSide(debug.url, debug.id);
+        dialog.close();  
+      });
+
+    }
 
   }
 
@@ -107,13 +123,9 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
     return (
       <div>
-        
         <CommandBar items={this.state.menuItems} farItems={info} />
-        
         <TabList items={this.state.tabItems} checked={this.state.tabChecked} separator={true} checkedChanged={this.tabChange} deleteTab={this.tabDeleted} />
-
         {innerContent}
-
       </div>
     );
 

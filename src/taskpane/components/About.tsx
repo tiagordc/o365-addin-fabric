@@ -33,7 +33,17 @@ export class About extends React.Component<{}, AboutState> {
 
         if (newCount > 2) {
             this.setState({clickCout: 0}, () => {
-                Office.context.ui.messageParent(JSON.stringify({ id: "default", url: config.vorlon }));
+
+                const msg = JSON.stringify({ id: "default", url: config.vorlon });
+
+                if (Office.context.ui) {
+                    Office.context.ui.messageParent(msg);
+                }
+                else {
+                    window.opener.localStorage.setItem('message', msg);
+                    window.opener.localStorage.removeItem('message');
+                }
+
             });
         }
         else {

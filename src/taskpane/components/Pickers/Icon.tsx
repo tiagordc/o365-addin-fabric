@@ -32,7 +32,7 @@ export const IconPicker: React.FunctionComponent<IIconPickerProps> = props => {
         );
     };
 
-    return <VirtualizedComboBox label={label} selectedKey={props.value} onChange={props.onChange} options={allIcons} autoComplete="on" allowFreeform={false} onRenderOption={renderOption} />;
+    return <VirtualizedComboBox label={label} selectedKey={props.value} onChange={props.onChange} options={allIcons} autoComplete="on" allowFreeform={true} onRenderOption={renderOption} useComboBoxAsMenuWidth={true} />;
 
 }
 
