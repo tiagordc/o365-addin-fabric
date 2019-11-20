@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { VirtualizedComboBox, IComboBoxOption, Icon, mergeStyles, IComboBox } from 'office-ui-fabric-react';
+import { Dropdown, IDropdownOption, Icon, mergeStyles, ResponsiveMode } from 'office-ui-fabric-react';
 
 export interface IIconPickerProps {
     value: string;
-    onChange: (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string) => void;
+    onChange: (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number) => void;
     color?: string;
     label?: string;
 }
@@ -13,15 +13,15 @@ export const IconPicker: React.FunctionComponent<IIconPickerProps> = props => {
     const color = props.color || "#0078d4";
     const label = props.label || "Type";
 
-    const allIcons: IComboBoxOption[] = getIcons().map((item) => ({
+    const allIcons: IDropdownOption[] = getIcons().sort().map((item) => ({
         key: item,
-        text: item.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3').replace(/^./, function(str){ return str.toUpperCase(); }),
+        text: item.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3').replace(/(.+?)\d+$/g, "$1").replace(/^./, function(str){ return str.toUpperCase(); }),
         data: { icon: item }
     }));
 
     const iconClass = mergeStyles({ marginRight: '8px', color: color });
 
-    const renderOption = (option: IComboBoxOption) => {
+    const renderOption = (option: IDropdownOption) => {
         return (
             <div>
                 {option.data && option.data.icon && (
@@ -32,7 +32,15 @@ export const IconPicker: React.FunctionComponent<IIconPickerProps> = props => {
         );
     };
 
-    return <VirtualizedComboBox label={label} selectedKey={props.value} onChange={props.onChange} options={allIcons} autoComplete="on" allowFreeform={true} onRenderOption={renderOption} useComboBoxAsMenuWidth={true} />;
+    const renderTitle = (options: IDropdownOption[]) => {
+        return renderOption(options[0]);
+    }
+
+    return <Dropdown label={props.label} selectedKey={props.value} onChange={props.onChange} options={allIcons} responsiveMode={ResponsiveMode.small} onRenderOption={renderOption} onRenderTitle={renderTitle} />;
+
+
+
+    // return <VirtualizedComboBox label={label} selectedKey={props.value} onChange={props.onChange} options={allIcons} autoComplete="on" allowFreeform={true} onRenderOption={renderOption} useComboBoxAsMenuWidth={true} />;
 
 }
 
@@ -76,29 +84,28 @@ function getIcons() {
         "ClearSelectionMirrored", "ClosePaneMirrored", "DockLeftMirrored", "DoubleChevronLeftMedMirrored", "GoMirrored", "HelpMirrored", "ImportMirrored", "ImportAllMirrored",
         "ListMirrored", "MailForwardMirrored", "MailReplyMirrored", "MailReplyAllMirrored", "MiniContractMirrored", "MiniExpandMirrored", "OpenPaneMirrored", "ParkingLocationMirrored",
         "SendMirrored", "ShowResultsMirrored", "ThumbnailViewMirrored", "Media", "Devices3", "Focus", "VideoLightOff", "Lightbulb", "StatusTriangle", "VolumeDisabled", "Puzzle",
-        "EmojiNeutral", "EmojiDisappointed", "HomeSolid", "Ringer", "PDF", "HeartBroken", "StoreLogo16", "MultiSelectMirrored", "Broom", "AddToShoppingList", "Cocktails", "Wines",
+        "EmojiNeutral", "EmojiDisappointed", "HomeSolid", "Ringer", "PDF", "HeartBroken", "MultiSelectMirrored", "Broom", "AddToShoppingList", "Cocktails", "Wines",
         "Articles", "Cycling", "DietPlanNotebook", "Pill", "ExerciseTracker", "HandsFree", "Medical", "Running", "Weights", "Trackers", "AddNotes", "AllCurrency", "BarChart4", "CirclePlus",
         "Coffee", "Cotton", "Market", "Money", "PieDouble", "PieSingle", "RemoveFilter", "Savings", "Sell", "StockDown", "StockUp", "Lamp", "Source", "MSNVideos", "Cricket", "Golf",
         "Baseball", "Soccer", "MoreSports", "AutoRacing", "CollegeHoops", "CollegeFootball", "ProFootball", "ProHockey", "Rugby", "SubstitutionsIn", "Tennis", "Arrivals", "Design",
         "Website", "Drop", "HistoricalWeather", "SkiResorts", "Snowflake", "BusSolid", "FerrySolid", "AirplaneSolid", "TrainSolid", "Heart", "HeartFill", "Ticket", "WifiWarning4",
-        "Devices4", "AzureLogo", "BingLogo", "MSNLogo", "OutlookLogoInverse", "OfficeLogo", "SkypeLogo", "Door", "EditMirrored", "GiftCard", "DoubleBookmark", "StatusErrorFull",
+        "Devices4", "AzureLogo", "BingLogo", "MSNLogo", "OfficeLogo", "SkypeLogo", "Door", "EditMirrored", "GiftCard", "DoubleBookmark", "StatusErrorFull",
         "Certificate", "FastForward", "Rewind", "Photo2", "OpenSource", "Movers", "CloudDownload", "Family", "WindDirection", "Bug", "SiteScan", "BrowserScreenShot", "F12DevTools", "CSS",
-        "JS", "DeliveryTruck", "ReminderPerson", "ReminderGroup", "TabletMode", "Umbrella", "NetworkTower", "CityNext", "CityNext2", "Section", "OneNoteLogoInverse", "ToggleFilled",
-        "ToggleBorder", "SliderThumb", "ToggleThumb", "Documentation", "Badge", "Giftbox", "VisualStudioLogo", "HomeGroup", "ExcelLogoInverse", "WordLogoInverse", "PowerPointLogoInverse",
+        "JS", "DeliveryTruck", "ReminderPerson", "ReminderGroup", "TabletMode", "Umbrella", "NetworkTower", "CityNext", "CityNext2", "Section", "ToggleFilled",
+        "ToggleBorder", "SliderThumb", "ToggleThumb", "Documentation", "Badge", "Giftbox", "VisualStudioLogo", "HomeGroup", 
         "Cafe", "SpeedHigh", "Commitments", "ThisPC", "MusicNote", "MicOff", "PlaybackRate1x", "EdgeLogo", "CompletedSolid", "AlbumRemove", "MessageFill", "TabletSelected",
         "MobileSelected", "LaptopSelected", "TVMonitorSelected", "DeveloperTools", "Shapes", "InsertTextBox", "LowerBrightness", "WebComponents", "OfflineStorage", "DOM", "CloudUpload",
         "ScrollUpDown", "DateTime", "Event", "Cake", "Tiles", "Org", "PartyLeader", "DRM", "CloudAdd", "AppIconDefault", "Photo2Add", "Photo2Remove", "Calories", "POI", "AddTo",
         "RadioBtnOff", "RadioBtnOn", "ExploreContent", "Embed", "Product", "ProgressLoopInner", "ProgressLoopOuter", "Blocked2", "FangBody", "Toolbox", "PageHeader", "Glimmer",
-        "ChatInviteFriend", "Brush", "Shirt", "Crown", "Diamond", "ScaleUp", "QRCode", "Feedback", "SharepointLogoInverse", "YammerLogo", "Hide", "Uneditable", "ReturnToSession",
-        "OpenFolderHorizontal", "CalendarMirrored", "SwayLogoInverse", "OutOfOffice", "Trophy", "ReopenPages", "EmojiTabSymbols", "AADLogo", "AccessLogo", "AdminALogoInverse32",
-        "AdminCLogoInverse32", "AdminDLogoInverse32", "AdminELogoInverse32", "AdminLLogoInverse32", "AdminMLogoInverse32", "AdminOLogoInverse32", "AdminPLogoInverse32",
-        "AdminSLogoInverse32", "AdminYLogoInverse32", "DelveLogoInverse", "ExchangeLogoInverse", "LyncLogo", "OfficeVideoLogoInverse", "SocialListeningLogo", "VisioLogoInverse", "Balloons",
+        "ChatInviteFriend", "Brush", "Shirt", "Crown", "Diamond", "ScaleUp", "QRCode", "Feedback",  "YammerLogo", "Hide", "Uneditable", "ReturnToSession",
+        "OpenFolderHorizontal", "CalendarMirrored", "OutOfOffice", "Trophy", "ReopenPages", "EmojiTabSymbols", "AADLogo", "AccessLogo", 
+        "LyncLogo", "SocialListeningLogo", "Balloons",
         "Cat", "MailAlert", "MailCheck", "MailLowImportance", "MailPause", "MailRepeat", "SecurityGroup", "Table", "VoicemailForward", "VoicemailReply", "Waffle", "RemoveEvent", "EventInfo",
         "ForwardEvent", "WipePhone", "AddOnlineMeeting", "JoinOnlineMeeting", "RemoveLink", "PeopleBlock", "PeopleRepeat", "PeopleAlert", "PeoplePause", "TransferCall", "AddPhone",
         "UnknownCall", "NoteReply", "NoteForward", "NotePinned", "RemoveOccurrence", "Timeline", "EditNote", "CircleHalfFull", "Room", "Unsubscribe", "Subscribe", "HardDrive", "RecurringTask",
         "TaskManager", "TaskManagerMirrored", "Combine", "Split", "DoubleChevronUp", "DoubleChevronLeft", "DoubleChevronRight", "Ascending", "Descending", "TextBox", "TextField", "NumberField",
-        "Dropdown", "PenWorkspace", "BookingsLogo", "ClassNotebookLogoInverse", "DelveAnalyticsLogo", "DocsLogoInverse", "Dynamics365Logo", "DynamicSMBLogo", "OfficeAssistantLogo",
-        "OfficeStoreLogo", "OneNoteEduLogoInverse", "PlannerLogo", "PowerApps", "Suitcase", "ProjectLogoInverse", "CaretLeft8", "CaretRight8", "CaretUp8", "CaretDown8", "CaretLeftSolid8",
+        "Dropdown", "PenWorkspace", "BookingsLogo", "DelveAnalyticsLogo", "Dynamics365Logo", "DynamicSMBLogo", "OfficeAssistantLogo",
+        "OfficeStoreLogo", "PlannerLogo", "PowerApps", "Suitcase", "CaretLeft8", "CaretRight8", "CaretUp8", "CaretDown8", "CaretLeftSolid8",
         "CaretRightSolid8", "CaretUpSolid8", "CaretDownSolid8", "ClearFormatting", "Superscript", "Subscript", "Strikethrough", "Export", "ExportMirrored", "SingleBookmark",
         "SingleBookmarkSolid", "DoubleChevronDown", "FollowUser", "ReplyAll", "WorkforceManagement", "RecruitmentManagement", "Questionnaire", "ManagerSelfService", "ProductionFloorManagement",
         "ProductRelease", "ProductVariant", "ReplyMirrored", "ReplyAllMirrored", "Medal", "AddGroup", "QuestionnaireMirrored", "CloudImportExport", "TemporaryUser", "CaretSolid16",
@@ -113,7 +120,7 @@ function getIcons() {
         "EditMail", "Lifesaver", "LifesaverLock", "InboxCheck", "FolderSearch", "CollapseMenu", "ExpandMenu", "Boards", "SunAdd", "SunQuestionMark", "LandscapeOrientation", "DocumentSearch",
         "PublicCalendar", "PublicContactCard", "PublicEmail", "PublicFolder", "WordDocument", "PowerPointDocument", "ExcelDocument", "GroupedList", "ClassroomLogo", "Sections", "EditPhoto",
         "Starburst", "ShareiOS", "AirTickets", "PencilReply", "Tiles2", "SkypeCircleCheck", "SkypeCircleClock", "SkypeCircleMinus", "SkypeCheck", "SkypeClock", "SkypeMinus", "SkypeMessage",
-        "ClosedCaption", "ATPLogo", "OfficeFormsLogoInverse", "RecycleBin", "EmptyRecycleBin", "Hide2", "Breadcrumb", "BirthdayCake", "ClearFilter", "Flow", "TimeEntry", "CRMProcesses",
+        "ClosedCaption", "ATPLogo", "RecycleBin", "EmptyRecycleBin", "Hide2", "Breadcrumb", "BirthdayCake", "ClearFilter", "Flow", "TimeEntry", "CRMProcesses",
         "PageEdit", "PageArrowRight", "PageRemove", "Database", "DataManagementSettings", "CRMServices", "EditContact", "ConnectContacts", "AppIconDefaultAdd", "AppIconDefaultList",
         "ActivateOrders", "DeactivateOrders", "ProductCatalog", "ScatterChart", "AccountActivity", "DocumentManagement", "CRMReport", "KnowledgeArticle", "Relationship", "HomeVerify",
         "ZipFolder", "SurveyQuestions", "TextDocument", "TextDocumentShared", "PageCheckedOut", "SaveAndClose", "Script", "Archive", "ActivityFeed", "Compare", "EventDate", "ArrowUpRight",
@@ -127,15 +134,15 @@ function getIcons() {
         "StatusCircleBlock2", "StatusCircleQuestionMark", "StatusCircleSync", "Toll", "ExploreContentSingle", "CollapseContent", "CollapseContentSingle", "InfoSolid", "GroupList",
         "ProgressRingDots", "CaloriesAdd", "BranchFork", "AddHome", "AddWork", "MobileReport", "ScaleVolume", "HardDriveGroup", "FastMode", "ToggleLeft", "ToggleRight", "TriangleShape",
         "RectangleShape", "CubeShape", "Trophy2", "BucketColor", "BucketColorFill", "Taskboard", "SingleColumn", "DoubleColumn", "TripleColumn", "ColumnLeftTwoThirds", "ColumnRightTwoThirds",
-        "AccessLogoFill", "AnalyticsLogo", "AnalyticsQuery", "NewAnalyticsQuery", "AnalyticsReport", "WordLogo", "WordLogoFill", "ExcelLogo", "ExcelLogoFill", "OneNoteLogo", "OneNoteLogoFill",
-        "OutlookLogo", "OutlookLogoFill", "PowerPointLogo", "PowerPointLogoFill", "PublisherLogo", "PublisherLogoFill", "ScheduleEventAction", "FlameSolid", "ServerProcesses", "Server",
+        "AnalyticsLogo", "AnalyticsQuery", "NewAnalyticsQuery", "AnalyticsReport", "WordLogo", "ExcelLogo", "OneNoteLogo",
+        "OutlookLogo", "PowerPointLogo",  "PublisherLogo", "ScheduleEventAction", "FlameSolid", "ServerProcesses", "Server",
         "SaveAll", "LinkedInLogo", "Decimals", "SidePanelMirrored", "ProtectRestrict", "Blog", "UnknownMirrored", "PublicContactCardMirrored", "GridViewSmall", "GridViewMedium",
         "GridViewLarge", "Step", "StepInsert", "StepShared", "StepSharedAdd", "StepSharedInsert", "ViewDashboard", "ViewList", "ViewListGroup", "ViewListTree", "TriggerAuto", "TriggerUser",
         "PivotChart", "StackedBarChart", "StackedLineChart", "BuildQueue", "BuildQueueNew", "UserFollowed", "ContactLink", "Stack", "Bullseye", "VennDiagram", "FiveTileGrid", "FocalPoint",
-        "RingerRemove", "TeamsLogoInverse", "TeamsLogo", "TeamsLogoFill", "SkypeForBusinessLogoFill", "SharepointLogo", "SharepointLogoFill", "DelveLogo", "DelveLogoFill", "OfficeVideoLogo",
-        "OfficeVideoLogoFill", "ExchangeLogo", "ExchangeLogoFill", "Signin", "DocumentApproval", "CloneToDesktop", "InstallToDrive", "Blur", "Build", "ProcessMetaTask", "BranchFork2",
+        "RingerRemove", "TeamsLogo", "SharepointLogo",  "DelveLogo", "OfficeVideoLogo",
+        "ExchangeLogo", "Signin", "DocumentApproval", "CloneToDesktop", "InstallToDrive", "Blur", "Build", "ProcessMetaTask", "BranchFork2",
         "BranchLocked", "BranchCommit", "BranchCompare", "BranchMerge", "BranchPullRequest", "BranchSearch", "BranchShelveset", "RawSource", "MergeDuplicate", "RowsGroup", "RowsChild",
-        "Deploy", "Redeploy", "ServerEnviroment", "VisioDiagram", "HighlightMappedShapes", "TextCallout", "IconSetsFlag", "VisioLogo", "VisioLogoFill", "VisioDocument", "TimelineProgress",
+        "Deploy", "Redeploy", "ServerEnviroment", "VisioDiagram", "HighlightMappedShapes", "TextCallout", "IconSetsFlag", "VisioLogo","VisioDocument", "TimelineProgress",
         "TimelineDelivery", "Backlog", "TeamFavorite", "TaskGroup", "TaskGroupMirrored", "ScopeTemplate", "AssessmentGroupTemplate", "NewTeamProject", "CommentAdd", "CommentNext",
         "CommentPrevious", "ShopServer", "LocaleLanguage", "QueryList", "UserSync", "UserPause", "StreamingOff", "MoreVertical", "ArrowTallUpLeft", "ArrowTallUpRight", "ArrowTallDownLeft",
         "ArrowTallDownRight", "FieldEmpty", "FieldFilled", "FieldChanged", "FieldNotChanged", "RingerOff", "PlayResume", "BulletedList2", "BulletedList2Mirrored", "ImageCrosshair", "GitGraph",
@@ -154,23 +161,18 @@ function getIcons() {
         "ReviewResponseSolid", "FeedbackRequestSolid", "FeedbackRequestMirroredSolid", "FeedbackResponseSolid", "WorkItemBar", "WorkItemBarSolid", "Separator", "NavigateExternalInline",
         "PlanView", "TimelineMatrixView", "EngineeringGroup", "ProjectCollection", "CaretBottomRightCenter8", "CaretBottomLeftCenter8", "CaretTopRightCenter8", "CaretTopLeftCenter8",
         "DonutChart", "ChevronUnfold10", "ChevronFold10", "DoubleChevronDown8", "DoubleChevronUp8", "DoubleChevronLeft8", "DoubleChevronRight8", "ChevronDownEnd6", "ChevronUpEnd6",
-        "ChevronLeftEnd6", "ChevronRightEnd6", "ContextMenu", "AzureAPIManagement", "AzureServiceEndpoint", "VSTSLogo", "VSTSAltLogo1", "VSTSAltLogo2", "FileTypeSolution",
-        "WordLogoInverse16", "WordLogo16", "WordLogoFill16", "PowerPointLogoInverse16", "PowerPointLogo16", "PowerPointLogoFill16", "ExcelLogoInverse16", "ExcelLogo16", "ExcelLogoFill16",
-        "OneNoteLogoInverse16", "OneNoteLogo16", "OneNoteLogoFill16", "OutlookLogoInverse16", "OutlookLogo16", "OutlookLogoFill16", "PublisherLogoInverse16", "PublisherLogo16",
-        "PublisherLogoFill16", "VisioLogoInverse16", "VisioLogo16", "VisioLogoFill16", "TestBeaker", "TestBeakerSolid", "TestExploreSolid", "TestAutoSolid", "TestUserSolid",
+        "ChevronLeftEnd6", "ChevronRightEnd6", "ContextMenu", "AzureAPIManagement", "AzureServiceEndpoint", "VSTSLogo", "FileTypeSolution",
+        "TestBeaker", "TestBeakerSolid", "TestExploreSolid", "TestAutoSolid", "TestUserSolid",
         "TestImpactSolid", "TestPlan", "TestStep", "TestParameter", "TestSuite", "TestCase", "Sprint", "SignOut", "TriggerApproval", "Rocket", "AzureKeyVault", "Onboarding", "Transition",
         "LikeSolid", "DislikeSolid", "CRMCustomerInsightsApp", "EditCreate", "PlayReverseResume", "PlayReverse", "SearchData", "UnSetColor", "DeclineCall", "RectangularClipping",
-        "TeamsLogo16", "TeamsLogoFill16", "Spacer", "SkypeLogo16", "SkypeForBusinessLogo16", "SkypeForBusinessLogoFill16", "FilterSolid", "MailUndelivered", "MailTentative",
+        "Spacer","FilterSolid", "MailUndelivered", "MailTentative",
         "MailTentativeMirrored", "MailReminder", "ReceiptUndelivered", "ReceiptTentative", "ReceiptTentativeMirrored", "Inbox", "IRMReply", "IRMReplyMirrored", "IRMForward",
-        "IRMForwardMirrored", "VoicemailIRM", "EventAccepted", "EventTentative", "EventTentativeMirrored", "EventDeclined", "IDBadge", "BackgroundColor", "OfficeFormsLogoInverse16",
-        "OfficeFormsLogo", "OfficeFormsLogoFill", "OfficeFormsLogo16", "OfficeFormsLogoFill16", "OfficeFormsLogoInverse24", "OfficeFormsLogo24", "OfficeFormsLogoFill24", "PageLock",
+        "IRMForwardMirrored", "VoicemailIRM", "EventAccepted", "EventTentative", "EventTentativeMirrored", "EventDeclined", "IDBadge", "BackgroundColor", "OfficeFormsLogo", 
         "NotExecuted", "NotImpactedSolid", "FieldReadOnly", "FieldRequired", "BacklogBoard", "ExternalBuild", "ExternalTFVC", "ExternalXAML", "IssueSolid", "DefectSolid", "LadybugSolid",
-        "NugetLogo", "TFVCLogo", "ProjectLogo32", "ProjectLogoFill32", "ProjectLogo16", "ProjectLogoFill16", "SwayLogo32", "SwayLogoFill32", "SwayLogo16", "SwayLogoFill16",
-        "ClassNotebookLogo32", "ClassNotebookLogoFill32", "ClassNotebookLogo16", "ClassNotebookLogoFill16", "ClassNotebookLogoInverse32", "ClassNotebookLogoInverse16", "StaffNotebookLogo32",
-        "StaffNotebookLogoFill32", "StaffNotebookLogo16", "StaffNotebookLogoFill16", "StaffNotebookLogoInverted32", "StaffNotebookLogoInverted16", "KaizalaLogo", "TaskLogo",
-        "ProtectionCenterLogo32", "GallatinLogo", "Globe2", "Guitar", "Breakfast", "Brunch", "BeerMug", "Vacation", "Teeth", "Taxi", "Chopsticks", "SyncOccurence", "UnsyncOccurence",
+        "NugetLogo", "TFVCLogo", "PageLock","KaizalaLogo", "TaskLogo",
+        "Globe2", "Guitar", "Breakfast", "Brunch", "BeerMug", "Vacation", "Teeth", "Taxi", "Chopsticks", "SyncOccurence", "UnsyncOccurence",
         "GIF", "PrimaryCalendar", "SearchCalendar", "VideoOff", "MicrosoftFlowLogo", "BusinessCenterLogo", "ToDoLogoBottom", "ToDoLogoTop", "EditSolid12", "EditSolidMirrored12",
-        "UneditableSolid12", "UneditableSolidMirrored12", "UneditableMirrored", "AdminALogo32", "AdminALogoFill32", "ToDoLogoInverse", "Snooze", "WaffleOffice365", "ImageSearch",
+        "UneditableSolid12", "UneditableSolidMirrored12", "UneditableMirrored", "Snooze", "WaffleOffice365", "ImageSearch",
         "NewsSearch", "VideoSearch", "R", "FontColorA", "FontColorSwatch", "LightWeight", "NormalWeight", "SemiboldWeight", "GroupObject", "UngroupObject", "AlignHorizontalLeft",
         "AlignHorizontalCenter", "AlignHorizontalRight", "AlignVerticalTop", "AlignVerticalCenter", "AlignVerticalBottom", "HorizontalDistributeCenter", "VerticalDistributeCenter",
         "Ellipse", "Line", "Octagon", "Hexagon", "Pentagon", "RightTriangle", "HalfCircle", "QuarterCircle", "ThreeQuarterCircle", "SixPointStar", "TwelvePointStar", "ArrangeBringToFront",
@@ -178,23 +180,23 @@ function getIcons() {
         "AutoHeight", "ChartSeries", "ChartXAngle", "ChartYAngle", "Combobox", "LineSpacing", "Padding", "PaddingTop", "PaddingBottom", "PaddingLeft", "PaddingRight", "NavigationFlipper",
         "AlignJustify", "TextOverflow", "VisualsFolder", "VisualsStore", "PictureCenter", "PictureFill", "PicturePosition", "PictureStretch", "PictureTile", "Slider", "SliderHandleSize",
         "DefaultRatio", "NumberSequence", "GUID", "ReportAdd", "DashboardAdd", "MapPinSolid", "WebPublish", "PieSingleSolid", "BlockedSolid", "DrillDown", "DrillDownSolid", "DrillExpand",
-        "DrillShow", "SpecialEvent", "OneDriveFolder16", "FunctionalManagerDashboard", "BIDashboard", "CodeEdit", "RenewalCurrent", "RenewalFuture", "SplitObject", "BulkUpload",
+        "DrillShow", "SpecialEvent", "FunctionalManagerDashboard", "BIDashboard", "CodeEdit", "RenewalCurrent", "RenewalFuture", "SplitObject", "BulkUpload",
         "DownloadDocument", "GreetingCard", "Flower", "WaitlistConfirm", "WaitlistConfirmMirrored", "LaptopSecure", "DragObject", "EntryView", "EntryDecline", "ContactCardSettings",
         "ContactCardSettingsMirrored", "CalendarSettings", "CalendarSettingsMirrored", "HardDriveLock", "HardDriveUnlock", "AccountManagement", "ReportWarning", "TransitionPop",
         "TransitionPush", "TransitionEffect", "LookupEntities", "ExploreData", "AddBookmark", "SearchBookmark", "DrillThrough", "MasterDatabase", "CertifiedDatabase", "MaximumValue",
-        "MinimumValue", "VisualStudioIDELogo32", "PasteAsText", "PasteAsCode", "BrowserTab", "BrowserTabScreenshot", "DesktopScreenshot", "FileYML", "ClipboardSolid", "FabricUserFolder",
+        "MinimumValue", "PasteAsText", "PasteAsCode", "BrowserTab", "BrowserTabScreenshot", "DesktopScreenshot", "FileYML", "ClipboardSolid", "FabricUserFolder",
         "FabricNetworkFolder", "BullseyeTarget", "AnalyticsView", "Video360Generic", "Untag", "Leave", "Trending12", "Blocked12", "Warning12", "CheckedOutByOther12", "CheckedOutByYou12",
         "CircleShapeSolid", "SquareShapeSolid", "TriangleShapeSolid", "DropShapeSolid", "RectangleShapeSolid", "ZoomToFit", "InsertColumnsLeft", "InsertColumnsRight", "InsertRowsAbove",
         "InsertRowsBelow", "DeleteColumns", "DeleteRows", "DeleteRowsMirrored", "DeleteTable", "AccountBrowser", "VersionControlPush", "StackedColumnChart2", "TripleColumnWide",
-        "QuadColumn", "WhiteBoardApp16", "WhiteBoardApp32", "PinnedSolid", "InsertSignatureLine", "ArrangeByFrom", "Phishing", "CreateMailRule", "PublishCourse", "DictionaryRemove",
+        "QuadColumn","PinnedSolid", "InsertSignatureLine", "ArrangeByFrom", "Phishing", "CreateMailRule", "PublishCourse", "DictionaryRemove",
         "UserRemove", "UserEvent", "Encryption", "PasswordField", "OpenInNewTab", "Hide3", "VerifiedBrandSolid", "MarkAsProtected", "AuthenticatorApp", "WebTemplate", "DefenderTVM",
         "MedalSolid", "D365TalentLearn", "D365TalentInsight", "D365TalentHRCore", "BacklogList", "ButtonControl", "TableGroup", "MountainClimbing", "TagUnknown", "TagUnknownMirror",
-        "TagUnknown12", "TagUnknown12Mirror", "Link12", "Presentation", "Presentation12", "Lock12", "BuildDefinition", "ReleaseDefinition", "SaveTemplate", "UserGauge",
+        "TagUnknown12", "TagUnknown12Mirror", "Presentation", "Presentation12", "Lock12", "BuildDefinition", "ReleaseDefinition", "SaveTemplate", "UserGauge",
         "BlockedSiteSolid12", "TagSolid", "OfficeChat", "OfficeChatSolid", "MailSchedule", "WarningSolid", "Blocked2Solid", "SkypeCircleArrow", "SkypeArrow", "SyncStatus",
-        "SyncStatusSolid", "ProjectDocument", "ToDoLogoOutline", "VisioOnlineLogoFill32", "VisioOnlineLogo32", "VisioOnlineLogoCloud32", "VisioDiagramSync", "Event12", "EventDateMissed12",
+        "SyncStatusSolid", "ProjectDocument", "ToDoLogoOutline", "VisioDiagramSync", "Event12", "EventDateMissed12",
         "UserOptional", "ResponsesMenu", "DoubleDownArrow", "DistributeDown", "BookmarkReport", "FilterSettings", "GripperDotsVertical", "MailAttached", "AddIn", "LinkedDatabase",
-        "TableLink", "PromotedDatabase", "BarChartVerticalFilter", "BarChartVerticalFilterSolid", "MicrosoftTranslatorLogo", "ShowTimeAs", "FileRequest", "WorkItemAlert", "PowerBILogo16",
-        "PowerBILogoBackplate16", "BulletedListText", "BulletedListBullet", "BulletedListTextMirrored", "BulletedListBulletMirrored", "NumberedListText", "NumberedListNumber",
+        "TableLink", "PromotedDatabase", "BarChartVerticalFilter", "BarChartVerticalFilterSolid", "MicrosoftTranslatorLogo", "ShowTimeAs", "FileRequest", "WorkItemAlert", 
+         "BulletedListText", "BulletedListBullet", "BulletedListTextMirrored", "BulletedListBulletMirrored", "NumberedListText", "NumberedListNumber",
         "NumberedListTextMirrored", "NumberedListNumberMirrored", "RemoveLinkChain", "RemoveLinkX", "FabricTextHighlight", "ClearFormattingA", "ClearFormattingEraser", "Photo2Fill",
         "IncreaseIndentText", "IncreaseIndentArrow", "DecreaseIndentText", "DecreaseIndentArrow", "IncreaseIndentTextMirrored", "IncreaseIndentArrowMirrored", "DecreaseIndentTextMirrored",
         "DecreaseIndentArrowMirrored", "CheckListText", "CheckListCheck", "CheckListTextMirrored", "CheckListCheckMirrored", "NumberSymbol", "Coupon", "VerifiedBrand", "ReleaseGate",

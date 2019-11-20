@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Stack, TextField } from 'office-ui-fabric-react';
+import { Stack, TextField, mergeStyles } from 'office-ui-fabric-react';
 import { ITabItem } from './TabItem';
 import { TypePicker, IconPicker } from '../Pickers';
 import { ListType } from './Types';
@@ -24,7 +24,7 @@ export class TabForm extends React.Component<ITabFormProps> {
                 value = (event.target as HTMLTextAreaElement).value;
                 break;
             case 'icon':
-                value = arguments[2].key; //value
+                value = arguments[2].key;
                 break;
             case 'type':
                 field = 'key';
@@ -44,11 +44,7 @@ export class TabForm extends React.Component<ITabFormProps> {
 
         if (this.props.item == null) return null;
 
-        let stackProps = {
-            tokens: {
-                padding: 10
-            }
-        };
+        let stackProps = { tokens: { padding: 10 } };
 
         let typeEditor: JSX.Element = null;
 
@@ -57,15 +53,18 @@ export class TabForm extends React.Component<ITabFormProps> {
                 typeEditor = <ListType item={this.props.item} />
                 break;
         }
-
+        
         return (
-            <Stack {...stackProps}>
-                <TextField label="Title" readOnly={readOnly} value={this.props.item.title} onChange={this.change.bind(this, "title")} />
-                <TextField label="Description" multiline rows={3} value={this.props.item.description} onChange={this.change.bind(this, "description")} />
-                <IconPicker label="Icon" value={this.props.item.icon} onChange={this.change.bind(this, "icon")} />
-                <TypePicker label="Type" value={this.props.item.key} onChange={this.change.bind(this, "type")}  />
+            <div>
+                <Stack {...stackProps}>
+                <h3 className="panel-header">View Properties</h3>
+                    <TextField label="Title" readOnly={readOnly} value={this.props.item.title} onChange={this.change.bind(this, "title")} />
+                    <TextField label="Description" multiline rows={3} value={this.props.item.description} onChange={this.change.bind(this, "description")} />
+                    <IconPicker label="Icon" value={this.props.item.icon} onChange={this.change.bind(this, "icon")} />
+                    <TypePicker label="Type" value={this.props.item.key} onChange={this.change.bind(this, "type")}  />
+                </Stack>
                 {typeEditor}
-            </Stack>
+            </div>
         );
 
     }

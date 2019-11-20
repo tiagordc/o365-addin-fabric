@@ -41,7 +41,6 @@ export default class App extends React.Component<IAppProps, IAppState> {
       sheet: props.worksheet
     };
 
-
   }
 
   addTab = () => {

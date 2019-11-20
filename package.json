@@ -28,6 +28,7 @@
     "watch": "webpack --mode development --watch"
   },
   "dependencies": {
+    "@syncfusion/ej2-react-querybuilder": "^17.3.27",
     "core-js": "^3.1.4",
     "es6-promise": "^4.2.8",
     "office-ui-fabric-react": "^7.10.0",

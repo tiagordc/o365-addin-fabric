@@ -14,7 +14,6 @@ export const TypePicker: React.FunctionComponent<ITypePickerProps> = props => {
     const label = props.label || "Type";
 
     const types = [
-
     ];
 
     const labelClass = mergeStyles({ padding: '5px 0', fontSize: 14, fontWeight: 600, display: 'block' });
