@@ -1,24 +1,28 @@
-import * as React from 'react'
+import React, { useContext } from 'react'
 import { Dropdown, IDropdownOption, ResponsiveMode } from 'office-ui-fabric-react';
+import { useStateValue } from '../../../state';
 
 export interface IColumnPickerProps {
     label: string;
     placeholder?: string;
     value: string;
-    onChange: (value) => void;
+    onChange: (event, option?, index?) => void;
     color?: string;
     required?: boolean;
 }
 
 export const ColumnPicker: React.FunctionComponent<IColumnPickerProps> = props => {
 
-    const options: IDropdownOption[] = [
-        { key: 'id', text: 'ID' },
-        { key: 'company', text: 'Company' },
-        { key: 'address', text: 'Address' },
-        { key: 'owner', text: 'Owner' }
-    ];
+    const [{ file },] = useStateValue();
 
-    return <Dropdown label={props.label} placeholder={props.placeholder} options={options} responsiveMode={ResponsiveMode.small} required={props.required} />;
+    const options: IDropdownOption[] = file.currentSheet.columns.map((item) => {
+        return { key: item.key, text: item.key };
+    });
+
+    if (!props.required) {
+        options.splice(0, 0, { key: '', text: '' });
+    }
+
+    return <Dropdown label={props.label} placeholder={props.placeholder} options={options} defaultSelectedKey={props.value} responsiveMode={ResponsiveMode.small} required={props.required} onChange={props.onChange} />;
 
 }

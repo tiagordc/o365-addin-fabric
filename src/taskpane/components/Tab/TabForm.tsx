@@ -1,19 +1,20 @@
-import * as React from "react";
+import React from "react";
+import * as Types from './Types';
 import { Stack, TextField, mergeStyles } from 'office-ui-fabric-react';
-import { ITabItem } from './TabItem';
+import { IAppView } from '../../../state';
 import { TypePicker, IconPicker } from '../Pickers';
-import { ListType } from './Types';
+
 
 export interface ITabFormProps {
-    item: ITabItem;
+    item: IAppView;
     onChange?: (field: string, value: any) => void;
 }
 
-export class TabForm extends React.Component<ITabFormProps> {
+export const TabForm: React.FunctionComponent<ITabFormProps> = props => {
 
-    change(field: string, event: React.FormEvent) {
-        
-        if (typeof this.props.onChange !== 'function') return;
+    const change = function(field: string, event: React.FormEvent) {
+
+        if (typeof props.onChange !== 'function') return;
         let value = null;
 
         switch (field) {
@@ -27,46 +28,39 @@ export class TabForm extends React.Component<ITabFormProps> {
                 value = arguments[2].key;
                 break;
             case 'type':
-                field = 'key';
                 value = (event.target as HTMLElement).closest('div').attributes['data-key'].value;
+                break;
+            case 'config':
+                value = arguments[2];
                 break;
             default:
                 return;
         }
 
-        this.props.onChange(field, value);
+        props.onChange(field, value);
 
-    }
+    };
 
-    render() {
+    const readOnly = typeof props.onChange !== 'function';
+    if (props.item == null) return null;
 
-        const readOnly = typeof this.props.onChange !== 'function';
-
-        if (this.props.item == null) return null;
-
-        let stackProps = { tokens: { padding: 10 } };
-
-        let typeEditor: JSX.Element = null;
-
-        switch (this.props.item.key) {
-            case 'list':
-                typeEditor = <ListType item={this.props.item} />
-                break;
-        }
-        
-        return (
-            <div>
-                <Stack {...stackProps}>
+    return (
+        <div>
+            <Stack tokens={{ padding: 10 }}>
                 <h3 className="panel-header">View Properties</h3>
-                    <TextField label="Title" readOnly={readOnly} value={this.props.item.title} onChange={this.change.bind(this, "title")} />
-                    <TextField label="Description" multiline rows={3} value={this.props.item.description} onChange={this.change.bind(this, "description")} />
-                    <IconPicker label="Icon" value={this.props.item.icon} onChange={this.change.bind(this, "icon")} />
-                    <TypePicker label="Type" value={this.props.item.key} onChange={this.change.bind(this, "type")}  />
-                </Stack>
-                {typeEditor}
-            </div>
-        );
-
-    }
+                <TextField label="Title" readOnly={readOnly} value={props.item.title} onChange={change.bind(this, "title")} required={true} />
+                <TextField label="Description" multiline rows={3} value={props.item.description} onChange={change.bind(this, "description")} />
+                <IconPicker label="Icon" value={props.item.icon} onChange={change.bind(this, "icon")} required={true} />
+                <TypePicker label="Type" value={props.item.type} onChange={change.bind(this, "type")} required={true} />
+            </Stack>
+            {props.item.type === 'calendar' && <Types.CalendarType item={props.item} onChange={change.bind(this, "config")} />}
+            {props.item.type === 'cards' && <Types.CardsType item={props.item} onChange={change.bind(this, "config")} />}
+            {props.item.type === 'chart' && <Types.ChartType item={props.item} onChange={change.bind(this, "config")} />}
+            {props.item.type === 'gallery' && <Types.GalleryType item={props.item} onChange={change.bind(this, "config")} />}
+            {props.item.type === 'list' && <Types.ListType item={props.item} onChange={change.bind(this, "config")} />}
+            {props.item.type === 'map' && <Types.MapType item={props.item} onChange={change.bind(this, "config")} />}
+            {props.item.type === 'table' && <Types.TableType item={props.item} onChange={change.bind(this, "config")} />}
+        </div>
+    );
 
 }

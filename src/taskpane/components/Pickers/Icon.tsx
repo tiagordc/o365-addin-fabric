@@ -6,12 +6,12 @@ export interface IIconPickerProps {
     onChange: (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number) => void;
     color?: string;
     label?: string;
+    required?: boolean;
 }
 
 export const IconPicker: React.FunctionComponent<IIconPickerProps> = props => {
 
     const color = props.color || "#0078d4";
-    const label = props.label || "Type";
 
     const allIcons: IDropdownOption[] = getIcons().sort().map((item) => ({
         key: item,
@@ -36,11 +36,7 @@ export const IconPicker: React.FunctionComponent<IIconPickerProps> = props => {
         return renderOption(options[0]);
     }
 
-    return <Dropdown label={props.label} selectedKey={props.value} onChange={props.onChange} options={allIcons} responsiveMode={ResponsiveMode.small} onRenderOption={renderOption} onRenderTitle={renderTitle} />;
-
-
-
-    // return <VirtualizedComboBox label={label} selectedKey={props.value} onChange={props.onChange} options={allIcons} autoComplete="on" allowFreeform={true} onRenderOption={renderOption} useComboBoxAsMenuWidth={true} />;
+    return <Dropdown label={props.label} selectedKey={props.value} required={props.required} onChange={props.onChange} options={allIcons} responsiveMode={ResponsiveMode.small} onRenderOption={renderOption} onRenderTitle={renderTitle} />;
 
 }
 
@@ -205,7 +201,7 @@ function getIcons() {
         "InformationBarriers", "CommentActive", "ColumnVerticalSectionEdit", "WavingHand", "ShakeDevice", "SmartGlassRemote", "Rotate90Clockwise", "Rotate90CounterClockwise",
         "CampaignTemplate", "ChartTemplate", "PageListFilter", "SecondaryNav", "ColumnVerticalSection", "SkypeCircleSlash", "SkypeSlash", "CustomizeToolbar", "DuplicateRow",
         "RemoveFromTrash", "MailOptions", "Childof", "Footer", "Header", "BarChartVerticalFill", "StackedColumnChart2Fill", "PlainText", "AccessibiltyChecker", "DatabaseSync",
-        "ReservationOrders", "TabOneColumn", "TabTwoColumn", "TabThreeColumn", "MicrosoftTranslatorLogoGreen", "MicrosoftTranslatorLogoBlue", "InternalInvestigation", "AddReaction",
+        "ReservationOrders", "TabOneColumn", "TabTwoColumn", "TabThreeColumn", "MicrosoftTranslatorLogoGreen", "MicrosoftTranslatorLogoBlue", "InternalInvestigation", 
         "ContactHeart", "VisuallyImpaired", "EventToDoLogo", "Variable2", "ModelingView", "DisconnectVirtualMachine", "ReportLock", "Uneditable2", "Uneditable2Mirrored",
         "BarChartVerticalEdit", "GlobalNavButtonActive", "PollResults", "Rerun", "QandA", "QandAMirror", "BookAnswers", "AlertSettings", "TrimStart", "TrimEnd", "TableComputed",
         "DecreaseIndentLegacy", "IncreaseIndentLegacy", "SizeLegacy"];

@@ -6,6 +6,7 @@ export interface ITypePickerProps {
     onChange: (value) => void;
     color?: string;
     label?: string;
+    required?: boolean;
 }
 
 export const TypePicker: React.FunctionComponent<ITypePickerProps> = props => {
@@ -14,6 +15,13 @@ export const TypePicker: React.FunctionComponent<ITypePickerProps> = props => {
     const label = props.label || "Type";
 
     const types = [
+        { value: 'list', name: 'List', icon: 'PageListFilter' },
+        { value: 'table', name: 'Table', icon: 'Table' },
+        { value: 'gallery', name: 'Gallery', icon: 'PictureTile' },
+        { value: 'map', name: 'Map', icon: 'MapPin' },
+        { value: 'calendar', name: 'Calendar', icon: 'Calendar' },
+        { value: 'chart', name: 'Chart', icon: 'Chart' },
+        { value: 'cards', name: 'Cards', icon: 'MapLayers' }
     ];
 
     const labelClass = mergeStyles({ padding: '5px 0', fontSize: 14, fontWeight: 600, display: 'block' });

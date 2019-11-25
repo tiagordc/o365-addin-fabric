@@ -34,7 +34,8 @@ export class About extends React.Component<{}, AboutState> {
         if (newCount > 2) {
             this.setState({clickCout: 0}, () => {
 
-                const msg = JSON.stringify({ id: "default", url: config.vorlon });
+                const id = (1 + Math.random() * 4294967295).toString(16).replace(/[^\w]/g, "");
+                const msg = JSON.stringify({ id, url: config.vorlon });
 
                 if (Office.context.ui) {
                     Office.context.ui.messageParent(msg);
