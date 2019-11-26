@@ -28,13 +28,8 @@ export const ListType: React.FunctionComponent<{id: string}> = props => {
             case 'details':
             case 'filter':
             case 'addItem':
-                config._list[field] = arguments[2];
-                break;
             case 'group':
-                config._list['group'] = arguments[2];
-                if (!config._list['groupBy'] && file.currentSheet && file.currentSheet.columns && file.currentSheet.columns.length > 0) {
-                    config._list['groupBy'] = file.currentSheet.columns[0].key;
-                }
+                config._list[field] = arguments[2];
                 break;
         }
 

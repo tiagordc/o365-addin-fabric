@@ -1,20 +1,25 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Dropdown, IDropdownOption, ResponsiveMode } from 'office-ui-fabric-react';
 import { useStateValue } from '../../../state';
 
 export interface IColumnPickerProps {
     label: string;
+    required?: boolean;
     placeholder?: string;
     value: string | { name: string, table?: string };
     onChange: (column: string | { name: string, table?: string }) => void;
-    color?: string;
-    required?: boolean;
 }
 
 export const ColumnPicker: React.FunctionComponent<IColumnPickerProps> = props => {
 
     const [{ file },] = useStateValue();
     const sheet = file.currentSheet;
+
+    useEffect(() => {
+        if (props.required && !stringValue && options.length > 0) {
+            change(null, options[0]);
+        }
+    }, []);
 
     let options: IDropdownOption[] = sheet.columns.map((item) => {
         return { key: btoa(`\|/${item.key}`), text: item.key };
@@ -61,14 +66,9 @@ export const ColumnPicker: React.FunctionComponent<IColumnPickerProps> = props =
                 if (parts[0].length === 0) props.onChange(parts[1]);
                 else props.onChange( { name: parts[1], table: parts[0 ]});
             }
-            props.onChange(null);
+            else props.onChange(null);
         }
     };
-
-    // On group by this is causing an infinite loop of dispatches
-    // if (props.required && !stringValue && options.length > 0) {
-    //     change(null, options[0]);
-    // }
 
     return <Dropdown label={props.label} placeholder={props.placeholder} options={options} defaultSelectedKey={stringValue} responsiveMode={ResponsiveMode.small} required={props.required} onChange={change} onRenderOption={renderOption} onRenderTitle={renderTitle} />;
 
