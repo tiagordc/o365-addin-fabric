@@ -3,7 +3,7 @@ import { Icon, Stack, IStackStyles, IStackItemStyles, mergeStyles } from 'office
 import Truncate from 'react-truncate';
 import { IAppView } from '../../../state';
 
-export interface ITabListProps {
+export interface IViewListProps {
 
     items: IAppView[];
 
@@ -22,7 +22,7 @@ export interface ITabListProps {
 
 }
 
-export const TabList: React.FunctionComponent<ITabListProps> = props => {
+export const ViewList: React.FunctionComponent<IViewListProps> = props => {
 
     const [textWidth, setTextWidth] = useState(0);
 

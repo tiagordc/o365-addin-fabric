@@ -68,16 +68,24 @@ export interface IExcelSheet {
   key?: string;
   name?: string;
   tables?: IExcelTable[];
+  charts?: IExcelChart[];
   columns?: IExcelColumn[];
 }
 
 export interface IExcelTable {
   key: string;
+  name?: string;
+  columns?: IExcelColumn[];
+}
+
+export interface IExcelChart {
+  key: string;
+  name?: string;
+  title?: string;
 }
 
 export interface IExcelColumn {
   key: string;
   type?: string;
   index?: number;
-  table?: string;
 }

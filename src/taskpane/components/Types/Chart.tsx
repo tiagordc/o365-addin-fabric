@@ -1,26 +1,21 @@
 import React from 'react'
 import { Stack, mergeStyles } from 'office-ui-fabric-react';
-import { IAppView } from '../../../../state';
+import { useStateValue, ActionType } from '../../../state';
 
-export const ChartType: React.FunctionComponent<{item: IAppView, onChange: (event, config) => void}> = props => {
+export const ChartType: React.FunctionComponent<{id: string}> = props => {
 
-    if (props == null || props.item == null || typeof props.onChange !== 'function') return null;
+    const [{ views }, dispatch] = useStateValue();
+    const item = views.filter(x => x.id === props.id)[0];
 
-    let config = props.item.config || {};
+    let config = item.config || {};
 
     if (config._chart == null) {
-        config._chart = { };
-        props.onChange(event, config);
+        config._chart = {  };
+        dispatch({ type: ActionType.VIEW_UPDATE, payload: { id: props.id, field: 'config', value: config } });
     }
 
-    const change = function(_field: string, event: any){
+    const change = function(_field: string, _event: any){
         
-        let propagate = false;
-
-        if (propagate) {
-            props.onChange(event, config);
-        }
-
     };
 
     const officeColor = Office.context && Office.context.officeTheme ? Office.context.officeTheme.bodyBackgroundColor : '#e6e6e6';

@@ -1,24 +1,21 @@
 import React, { useState } from "react";
 import { CommandBar, ICommandBarItemProps, Spinner, SpinnerType } from "office-ui-fabric-react";
 import { config } from "../../config";
-import { TabList, TabForm } from './Tab';
+import { ViewList, ViewForm } from './Views';
 import { Settings } from './Settings';
 import { useStateValue, ActionType, IAppView } from '../../state'
       
 export const App: React.FunctionComponent = () => {
 
-  const [{ views, file }, dispatch] = useStateValue();
   const [activeMenu, setActiveMenu] = useState('views');
   const [activeView, setActiveView] = useState('');
-  
+  const [state, dispatch] = useStateValue();
+  const { views, file } = state;
+
   const addView = () => {
     const newItem: IAppView = { id: config.id(), sheet: file.currentSheet.key, order: 1, type: 'list', title: 'New Item', description: '', icon: 'List' };
     dispatch({ type: ActionType.VIEW_ADD, payload: newItem });
     setActiveView(newItem.id);
-  }
-
-  const viewChanged = (field: string, value: any) => {
-    dispatch({ type: ActionType.VIEW_UPDATE, payload: { id: activeView, field, value }})
   }
 
   const viewDeleted = (id: string) => {
@@ -63,27 +60,31 @@ export const App: React.FunctionComponent = () => {
 
   };
 
+  const deploy = () => {
+    let save = { title: state.title } as any;
+    save.views = state.views.map(x => { return {...x , config: x.config ? x.config["_" + x.type] : null }; });
+    console.log('Deploy', save);
+  };
+
   if (!file || !file.currentSheet) return <Spinner type={SpinnerType.large} label="Loading..." style={{ marginTop: '45%' }} />;
   
-  const info: ICommandBarItemProps[] = [{ key: 'info', text: 'Info', ariaLabel: 'Info', iconOnly: true, iconProps: { iconName: 'Info' }, onClick: aboutPage }];
-  const sheetTabs = views.filter(item => item.sheet === file.currentSheet.key);
-  let tabItem = activeView ? sheetTabs.filter(x => x.id === activeView)[0] : null;
-
+  let info: ICommandBarItemProps[] = [{ key: 'info', text: 'Info', ariaLabel: 'Info', iconOnly: true, iconProps: { iconName: 'Info' }, onClick: aboutPage }];
   let menus:  ICommandBarItemProps[] = [ { key: "back", text: "Back", iconProps: { iconName: "ChevronLeft" }, onClick: () => openMenu('views') } ];
+
   if (activeMenu === 'views') {
     menus = [
       { key: "add", text: "Add View", iconProps: { iconName: "Add" }, onClick: () => addView() },
       { key: "settings", text: "Settings", iconProps: { iconName: "CellPhone" }, onClick: () => openMenu('settings') },
       { key: "preview", text: "Preview", iconProps: { iconName: "RedEye" }, onClick: () => console.log("Preview") },
-      { key: "save", text: "Deploy", iconProps: { iconName: "WebPublish" }, onClick: () => console.log("Save") }
+      { key: "save", text: "Deploy", iconProps: { iconName: "WebPublish" }, onClick: () => deploy() }
     ];
   }
 
   return (
     <div>
       <CommandBar items={menus} farItems={info} />
-      {activeMenu === 'views' && <TabList items={views} checked={activeView} separator={true} checkedChanged={(id) => setActiveView(id)} deleteTab={viewDeleted} />}
-      {activeMenu === 'views' && activeView && (<TabForm item={tabItem} onChange={viewChanged} />)}
+      {activeMenu === 'views' && <ViewList items={views} checked={activeView} separator={true} checkedChanged={(id) => setActiveView(id)} deleteTab={viewDeleted} />}
+      {activeMenu === 'views' && activeView && (<ViewForm id={activeView} />)}
       {activeMenu === 'settings' && <Settings />}
     </div>
   );

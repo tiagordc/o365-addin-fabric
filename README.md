@@ -1,5 +1,9 @@
 # o365-addin-fabric
 
+## TODO
+
+- Infer types for columns
+
 ## References
 
 Build a message compose Outlook add-in:\
