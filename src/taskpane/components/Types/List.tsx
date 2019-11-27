@@ -16,26 +16,10 @@ export const ListType: React.FunctionComponent<{id: string}> = props => {
     }
 
     const change = function (field: string) {
-
-        switch (field) {
-            case 'source':
-            case 'title':
-            case 'description':
-            case 'image':
-            case 'groupBy':
-                config._list[field] = arguments[1];
-                break;
-            case 'search':
-            case 'details':
-            case 'filter':
-            case 'addItem':
-            case 'group':
-                config._list[field] = arguments[2];
-                break;
-        }
-
+        let argumentIndex = 1;
+        if (['search', 'details', 'filter', 'addItem', 'group'].indexOf(field) >= 0) argumentIndex = 2;
+        config._list[field] = arguments[argumentIndex];
         dispatch({ type: ActionType.VIEW_UPDATE, payload: { id: props.id, field: 'config', value: config } });
-
     };
 
     const officeColor = Office.context && Office.context.officeTheme ? Office.context.officeTheme.bodyBackgroundColor : '#e6e6e6';
@@ -43,6 +27,7 @@ export const ListType: React.FunctionComponent<{id: string}> = props => {
     const columnStyle: IStackStyles = { root: { overflow: 'hidden', width: '100%', borderBottom: '1px solid #bfbfbf' } };
     const columnFields: IStackItemStyles = { root: { background: '#fff', margin: 5, borderRight: '1px solid #bbb', padding: '0 10px 0 0' } };
     const columnActions: IStackItemStyles = { root: { display: 'flex', background: '#fff', justifyContent: 'center', overflow: 'hidden', width: 30, paddingTop: 5 }};
+    const showSource = file.currentSheet.tables && file.currentSheet.tables.length > 0;
 
     let columnsSource: IExcelColumn[] = [];
 
@@ -79,7 +64,7 @@ export const ListType: React.FunctionComponent<{id: string}> = props => {
             <div className={separator}></div>
             <Stack tokens={{ padding: 10 }}>
                 <h3 className="panel-header">List Properties</h3>
-                <SourcePicker label="Source" value={config._list.source} onChange={change.bind(this, 'source')} />
+                {showSource && <SourcePicker label="Source" value={config._list.source} onChange={change.bind(this, 'source')} />}
                 <ColumnPicker label="Title" value={config._list.title} source={config._list.source} onChange={change.bind(this, 'title')} required={true} />
                 <ColumnPicker label="Description" value={config._list.description} source={config._list.source} onChange={change.bind(this, 'description')} />
                 <ColumnPicker label="Image" value={config._list.image} source={config._list.source} onChange={change.bind(this, 'image')} />
@@ -90,7 +75,7 @@ export const ListType: React.FunctionComponent<{id: string}> = props => {
                     <Toggle label="Filter" checked={config._list.filter} onChange={change.bind(this, 'filter')} />
                 </Stack>
                 {config._list.group && <ColumnPicker label="Group by" value={config._list.groupBy} source={config._list.source} onChange={change.bind(this, 'groupBy')} required={true} />}
-                {config._list.filter && <div style={{ marginTop: 5}}><QueryPicker label="Filter Criteria" value={null} onChange={null} /></div>}
+                {config._list.filter && <div style={{ marginTop: 5}}><QueryPicker label="Filter Criteria" source={config._list.source} value={config._list.filterBy} onChange={change.bind(this, 'filterBy')} /></div>}
             </Stack>
             {config._list.details && (
             <div>
