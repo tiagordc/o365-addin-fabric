@@ -1,7 +1,7 @@
 import React from 'react'
 import { Stack, Toggle, Icon, IStackStyles, IStackItemStyles, TextField, mergeStyles } from 'office-ui-fabric-react';
-import { useStateValue, ActionType } from '../../../state';
-import { ColumnPicker, QueryPicker, DisplayPicker } from '../Pickers';
+import { useStateValue, ActionType, IExcelColumn } from '../../../state';
+import { ColumnPicker, QueryPicker, DisplayPicker, SourcePicker } from '../Pickers';
 
 export const ListType: React.FunctionComponent<{id: string}> = props => {
 
@@ -18,6 +18,7 @@ export const ListType: React.FunctionComponent<{id: string}> = props => {
     const change = function (field: string) {
 
         switch (field) {
+            case 'source':
             case 'title':
             case 'description':
             case 'image':
@@ -43,7 +44,21 @@ export const ListType: React.FunctionComponent<{id: string}> = props => {
     const columnFields: IStackItemStyles = { root: { background: '#fff', margin: 5, borderRight: '1px solid #bbb', padding: '0 10px 0 0' } };
     const columnActions: IStackItemStyles = { root: { display: 'flex', background: '#fff', justifyContent: 'center', overflow: 'hidden', width: 30, paddingTop: 5 }};
 
-    const columns = file.currentSheet.columns.map((item, index) => (
+    let columnsSource: IExcelColumn[] = [];
+
+    if (config._list.source){
+        if (file.currentSheet.tables) {
+            const sourceTable = file.currentSheet.tables.filter(x => x.key === config._list.source);
+            if (sourceTable.length === 1) {
+                columnsSource = sourceTable[0].columns;
+            }
+        }
+    }
+    else {
+        columnsSource = file.currentSheet.columns;
+    }
+
+    const columns = columnsSource.map((item, index) => (
         <Stack key={"item_" + index} horizontal styles={columnStyle}>
             <Stack.Item grow styles={columnFields}>
                 <Stack tokens={{ childrenGap: 6 }}>
@@ -64,16 +79,17 @@ export const ListType: React.FunctionComponent<{id: string}> = props => {
             <div className={separator}></div>
             <Stack tokens={{ padding: 10 }}>
                 <h3 className="panel-header">List Properties</h3>
-                <ColumnPicker label="Title" value={config._list.title} onChange={change.bind(this, 'title')} required={true} />
-                <ColumnPicker label="Description" value={config._list.description} onChange={change.bind(this, 'description')} />
-                <ColumnPicker label="Image" value={config._list.image} onChange={change.bind(this, 'image')} />
+                <SourcePicker label="Source" value={config._list.source} onChange={change.bind(this, 'source')} />
+                <ColumnPicker label="Title" value={config._list.title} source={config._list.source} onChange={change.bind(this, 'title')} required={true} />
+                <ColumnPicker label="Description" value={config._list.description} source={config._list.source} onChange={change.bind(this, 'description')} />
+                <ColumnPicker label="Image" value={config._list.image} source={config._list.source} onChange={change.bind(this, 'image')} />
                 <Stack horizontal tokens={{childrenGap: 30}} style={{margin: '5px 0 0 0'}}>
                     <Toggle label="Search" checked={config._list.search} onChange={change.bind(this, 'search')}/>
                     <Toggle label="Details" checked={config._list.details} onChange={change.bind(this, 'details')} />
                     <Toggle label="Group" checked={config._list.group} onChange={change.bind(this, 'group')} />
                     <Toggle label="Filter" checked={config._list.filter} onChange={change.bind(this, 'filter')} />
                 </Stack>
-                {config._list.group && <ColumnPicker label="Group by" value={config._list.groupBy} onChange={change.bind(this, 'groupBy')} required={true} />}
+                {config._list.group && <ColumnPicker label="Group by" value={config._list.groupBy} source={config._list.source} onChange={change.bind(this, 'groupBy')} required={true} />}
                 {config._list.filter && <div style={{ marginTop: 5}}><QueryPicker label="Filter Criteria" value={null} onChange={null} /></div>}
             </Stack>
             {config._list.details && (

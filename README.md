@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Infer types for columns
 - Reorder elements
 
 ## References

@@ -15,8 +15,8 @@ export enum ActionType {
   VIEW_ADD, VIEW_DELETE, VIEW_UPDATE
 };
 
-const reducer = (state: IAppState, action: IAction) => {
-
+const reducer = (state: IAppState, action: IAction): IAppState => {
+  return state;
 };
 
 export const StateContext = createContext(defaultProvider);

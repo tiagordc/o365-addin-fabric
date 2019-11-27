@@ -91,6 +91,7 @@ module.exports = async (env, options)  => {
       })
     ],
     devServer: {
+      disableHostCheck: true,
       headers: {
         "Access-Control-Allow-Origin": "*"
       },      

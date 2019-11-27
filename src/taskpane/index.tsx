@@ -13,21 +13,35 @@ let evData: OfficeExtension.EventHandlerResult<Excel.WorksheetChangedEventArgs>;
 
 ReactDOM.render(<AppContainer><StateProvider tools={o => state = o }><App /></StateProvider></AppContainer>, document.getElementById("container"));
 
-// let debug = "";
-// const render = () => {
-//   ReactDOM.render(
-//     <AppContainer>
-//       <StateProvider tools={o => state = o}>
-//         <div>{debug}</div>
-//       </StateProvider>
-//     </AppContainer>, document.getElementById("container"));
-// }
-// render();
+const inferCellType = (range: Excel.Range, row: number, column?: number) => {
 
-const readFile = (sheetId?: string): Promise<IExcelContext> => {
-  return Excel.run<IExcelContext>((context) => {
+  if (!column) column = 0; //if range is for a single column
+  const columnType = range.valueTypes[row][column];
+  let dataType: string = null;
 
-    // https://docs.microsoft.com/en-us/javascript/api/excel/....
+  switch (columnType) {
+    case Excel.RangeValueType.boolean:
+      dataType = 'boolean';
+      break;
+    case Excel.RangeValueType.double:
+      const columnFormat = range.numberFormat[row][column];
+      if (/(?:yy|mm|dd)/i.test(columnFormat)) dataType = 'date';
+      else dataType = 'number';
+      break;
+    case Excel.RangeValueType.integer:
+      dataType = 'number';
+      break;
+    case Excel.RangeValueType.string:
+      dataType = 'string';
+      break;
+  }
+
+  return dataType;
+
+};
+
+const readFile = (sheetId?: string): void => {
+  Excel.run<IExcelContext>((context) => {
 
     let result: IExcelContext = { };
     let sheet: Excel.Worksheet;
@@ -42,42 +56,98 @@ const readFile = (sheetId?: string): Promise<IExcelContext> => {
     let charts = sheet.charts;
 
     sheet.load(['id', 'name']);
-    range.load(['columnIndex']);
+    range.load(['columnIndex', 'rowIndex', 'rowCount', 'columnCount']);
     headerRow.load(['text']);
-    tables.load(['id', 'name']); // excel.interfaces.tableloadoptions?view=excel-js-preview
-    charts.load(['id', 'name', 'title']); // excel.interfaces.chartloadoptions?view=excel-js-preview
+    tables.load(['id', 'name']); 
+    charts.load(['id', 'name', 'title']);
     
+    let tableData: { key: string, name: string, headers: Excel.Range, range: Excel.Range }[];
+    let columnData: { index: number, used?: Excel.Range, range?: Excel.Range }[];
+
     // evData = sheet.onChanged.add(dataChanged);
     // workbook.worksheets.onActivated.add(sheetChanged);
 
     return context.sync()
       .then(() => {
         result.currentSheet = { key: sheet.id, name: sheet.name };
-        result.currentSheet.columns = headerRow.text[0].map((x, i) => { return { key: x, index: i + range.columnIndex }; }).filter(x => x.key && x.key.length > 0);
-        result.currentSheet.charts = charts.items.map((x) => { return { key: x.id, name: x.name, title: x.title.text }; });
+        result.currentSheet.columns = headerRow.text[0].map((x, i) => ({ key: x, index: i + range.columnIndex })).filter(x => x.key && x.key.length > 0);
+        result.currentSheet.charts = charts.items.map((x) => ({ key: x.id, name: x.name, title: x.title.text }));
       })
       .then(() => {
-        let tablesHeaders = tables.items.map(x => x.getHeaderRowRange());
-        tablesHeaders.forEach(x => x.load('text'));
-        return context.sync(tablesHeaders);
-      })
-      .then((tablesHeaders) => {
 
-        result.currentSheet.tables = tables.items.map((table, tableIndex) => { 
-          return { 
-            key: table.id, 
-            name: table.name,
-            columns: tablesHeaders[tableIndex].text[0].map((key, index) => { return { key, index }; })
-          }; 
+        tableData = tables.items.map(table => {
+          const tableItem = { key: table.id, name: table.name, headers: table.getHeaderRowRange(), range: table.getRange() };
+          tableItem.headers.load('text');
+          tableItem.range.load(['columnIndex', 'rowIndex', 'rowCount', 'columnCount', 'valueTypes', 'numberFormat']);
+          return tableItem;
         });
-        
-        state.load(result);
-        // debug = JSON.stringify(result);
-        // render();
-        
+
+        return context.sync();
+
       })
       .then(() => {
-        return Promise.resolve(result);
+
+        result.currentSheet.tables = tableData.map(table => {
+          return {
+            key: table.key,
+            name: table.name,
+            columns: table.headers.text[0].map((key, index) => ( { key, index }))
+          };
+        });
+
+        columnData = result.currentSheet.columns.map(column => {
+          const tablesOnThisColumn = tableData.filter(table => column.index >= table.range.columnIndex && column.index <= (table.range.columnIndex + table.range.columnCount)).map(x => x.range.rowIndex);
+          tablesOnThisColumn.push(range.rowCount);
+          const maxRowToSearch = Math.min(...tablesOnThisColumn);
+          const columnItem = { index: column.index, used: sheet.getRangeByIndexes(0, column.index, maxRowToSearch, 1).getUsedRangeOrNullObject(true) };
+          columnItem.used.load(['rowCount']);
+          return columnItem;
+        });
+
+        return context.sync();
+
+      })
+      .then(() => {
+
+        columnData.forEach(x => {
+          x.range = sheet.getRangeByIndexes(0, x.index, x.used.rowCount, 1);
+          x.range.load(['valueTypes', 'numberFormat']);
+        });
+
+        return context.sync();
+
+      })
+      .then(() => {
+
+        columnData.forEach(column => {
+          const columnRange = column.range;
+          let columnTypes: string[] = [];
+          for (let j = 1; j < columnRange.valueTypes.length; j++) { 
+            const dataType = inferCellType(columnRange, j);
+            if (dataType && columnTypes.indexOf(dataType) === -1) columnTypes.push(dataType);
+            if (columnTypes.length > 1) break;
+          }
+          if (columnTypes.length === 1) result.currentSheet.columns.filter(x => x.index === column.index)[0].type = columnTypes[0];
+        });
+
+        result.currentSheet.tables.forEach(table => {
+          const data = tableData.filter(x => x.key == table.key)[0];
+          const tableRange = data.range;
+          for (let i = 0; i < table.columns.length; i++) {
+            let columnTypes: string[] = [];
+            for (let j = 1; j < tableRange.valueTypes[i].length; j++) {
+              const dataType = inferCellType(tableRange, j, i);
+              if (dataType && columnTypes.indexOf(dataType) === -1) columnTypes.push(dataType);
+              if (columnTypes.length > 1) break;
+            }
+            if (columnTypes.length === 1) table.columns[i].type = columnTypes[0];
+          }
+        });
+
+      })
+      .then(() => {
+        state.load(result);
+        return result;
       });
 
   });

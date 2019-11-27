@@ -6,8 +6,9 @@ export interface IColumnPickerProps {
     label: string;
     required?: boolean;
     placeholder?: string;
-    value: string | { name: string, table?: string };
-    onChange: (column: string | { name: string, table?: string }) => void;
+    value: string;
+    source: string;
+    onChange: (column: string) => void;
 }
 
 export const ColumnPicker: React.FunctionComponent<IColumnPickerProps> = props => {
@@ -16,60 +17,34 @@ export const ColumnPicker: React.FunctionComponent<IColumnPickerProps> = props =
     const sheet = file.currentSheet;
 
     useEffect(() => {
-        if (props.required && !stringValue && options.length > 0) {
+        if (props.required && !props.value && options.length > 0) {
             change(null, options[0]);
         }
     }, []);
 
-    let options: IDropdownOption[] = sheet.columns.map((item) => {
-        return { key: btoa(`\|/${item.key}`), text: item.key };
-    });
+    let options: IDropdownOption[];
 
-    if (sheet.tables && sheet.tables.length > 0) {
-        for (let i = 0; i < sheet.tables.length; i++) {
-            const table = sheet.tables[i];
-            options.push(...table.columns.map((item) => {
-                return { key: btoa(`${table.name}\|/${item.key}`), text: item.key, data: { table } };
-            }));
+    if (props.source == null || props.source === '') {
+        options = sheet.columns.map((item) => ({ key: item.key, text: item.key }));
+    }
+    else {
+        const tables = sheet.tables.filter(x => x.key === props.source);
+        if (tables.length === 1) {
+            options = tables[0].columns.map((item) => ({ key: item.key, text: item.key }));
         }
     }
-    
+
     if (!props.required) {
         options.splice(0, 0, { key: '', text: '' });
     }
 
-    const renderOption = (option: IDropdownOption) => {
-        return (
-            <div>
-                {option.key && (!option.data || !option.data.table) && <span>{sheet.name}: </span>}
-                {option.data && option.data.table && <span>{option.data.table.name}: </span>}
-                <span>{option.text}</span>
-            </div>
-        );
-    };
-
-    const renderTitle = (options: IDropdownOption[]) => {
-        return renderOption(options[0]);
-    }
-
-    let stringValue: string;
-
-    if (props.value) {
-        if (typeof props.value === 'string') stringValue = btoa(`\|/${props.value}`);
-        else if (typeof props.value === 'object' && props.value.name) stringValue = btoa(`${props.value.table ? props.value.table : ''}\|/${props.value.name}`);
-    }
-
     const change = (_e, option?) => {
         if (typeof props.onChange === 'function') {
-            if (option && option.key) {
-                const parts = atob(option.key).split('\|/');
-                if (parts[0].length === 0) props.onChange(parts[1]);
-                else props.onChange( { name: parts[1], table: parts[0 ]});
-            }
+            if (option && option.key) props.onChange(option.key);
             else props.onChange(null);
         }
     };
 
-    return <Dropdown label={props.label} placeholder={props.placeholder} options={options} defaultSelectedKey={stringValue} responsiveMode={ResponsiveMode.small} required={props.required} onChange={change} onRenderOption={renderOption} onRenderTitle={renderTitle} />;
+    return <Dropdown label={props.label} placeholder={props.placeholder} options={options} defaultSelectedKey={props.value} responsiveMode={ResponsiveMode.small} required={props.required} onChange={change} />;
 
 }
